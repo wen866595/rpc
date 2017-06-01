@@ -1,6 +1,4 @@
-package net.coderbee.rpc.core.server;
-
-import net.coderbee.rpc.core.RpcRequest;
+package net.coderbee.rpc.core;
 
 /**
  * rpc 服务端方法调用。

@@ -1,6 +1,6 @@
 package net.coderbee.rpc.demo.server;
 
-import net.coderbee.rpc.core.server.MethodInvoker;
+import net.coderbee.rpc.core.MethodInvoker;
 import net.coderbee.rpc.core.server.RpcServer;
 import net.coderbee.rpc.core.server.ServiceRegistry;
 import net.coderbee.rpc.spring.SpringBeanMethodInvoker;

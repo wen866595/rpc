@@ -2,7 +2,7 @@ package net.coderbee.rpc.spring;
 
 import net.coderbee.rpc.core.RpcRequest;
 import net.coderbee.rpc.core.RpcService;
-import net.coderbee.rpc.core.server.MethodInvoker;
+import net.coderbee.rpc.core.MethodInvoker;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
