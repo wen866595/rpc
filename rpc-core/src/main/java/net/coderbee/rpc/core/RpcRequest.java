@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * RPC 请求体。
  *
- * Created by coderbee on 2017/5/20.
+ * @author coderbee on 2017/5/20.
  */
 public class RpcRequest implements Serializable {
 	private String requestId;

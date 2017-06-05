@@ -67,11 +67,19 @@ public class URL {
 		return parameters;
 	}
 
+	public void setParameters(Map<String, String> parameters) {
+		this.parameters = parameters == null ? new HashMap<>() : parameters;
+	}
+
 	public String getParameter(String name) {
 		return parameters.get(name);
 	}
 
-	public void setParameters(Map<String, String> parameters) {
-		this.parameters = parameters == null ? new HashMap<>() : parameters;
+	public String getParameter(String name, String defaultValue) {
+		String value = parameters.get(name);
+		if (value == null) {
+			value = defaultValue;
+		}
+		return value;
 	}
 }

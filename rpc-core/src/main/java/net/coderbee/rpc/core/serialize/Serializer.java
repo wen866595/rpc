@@ -9,4 +9,6 @@ public interface Serializer {
 
 	byte[] serialize(Object obj) throws IOException;
 
+	<T> Object deSerialize(byte[] data, Class<T> type) throws IOException;
+
 }

@@ -1,5 +1,7 @@
 package net.coderbee.rpc.core;
 
+import net.coderbee.rpc.core.serialize.Serializer;
+
 /**
  * 调用协议定义
  *
@@ -13,7 +15,7 @@ public interface Protocol {
 	 * @param invoker 方法调用器
 	 * @return 服务定义器
 	 */
-	Exporter exporter(Invoker invoker);
+	<T> Exporter<T> exporter(Invoker invoker);
 
 	/**
 	 * 返回该协议的服务引用器
@@ -22,7 +24,7 @@ public interface Protocol {
 	 * @param url   服务资源定义
 	 * @return 引用器
 	 */
-	Refer refer(Class<?> clazz, URL url);
+	<T> Refer<T> refer(Class<T> clazz, URL url, Serializer serializer);
 
 	/**
 	 * 销毁服务。用于释放服务的资源。

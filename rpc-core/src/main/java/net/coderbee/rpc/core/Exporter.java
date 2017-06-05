@@ -5,7 +5,7 @@ package net.coderbee.rpc.core;
  *
  * @author coderbee
  */
-public interface Exporter {
+public interface Exporter<T> {
 
 	Invoker getInvoker();
 

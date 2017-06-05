@@ -5,10 +5,7 @@ package net.coderbee.rpc.core;
  *
  * @author coderbee
  */
-public interface Refer {
-
-	Invoker getInvoker();
-
+public interface Refer<T> extends Invoker<T> {
 
 
 }

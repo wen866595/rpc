@@ -1,7 +1,6 @@
 package net.coderbee.rpc.core.serialize.impl;
 
 import com.caucho.hessian.io.Hessian2StreamingInput;
-import net.coderbee.rpc.core.serialize.DeSerializer;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
