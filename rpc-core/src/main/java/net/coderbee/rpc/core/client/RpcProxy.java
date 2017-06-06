@@ -2,6 +2,9 @@ package net.coderbee.rpc.core.client;
 
 import net.coderbee.rpc.core.RpcRequest;
 import net.coderbee.rpc.core.RpcResponse;
+import net.coderbee.rpc.core.URL;
+import net.coderbee.rpc.core.serialize.impl.Hessian2Serializer;
+import net.coderbee.rpc.core.transport.netty.NettyClient;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -43,8 +46,10 @@ public class RpcProxy {
 				String host = split[0];
 				int port = Integer.parseInt(split[1]);
 
-				RpcClient client = new RpcClient(host, port);
-				RpcResponse response = client.send(request);
+				URL serviceUrl = new URL("nettyHessian", host, port, interfaceClass.getName());
+				NettyClient nettyClient = new NettyClient(serviceUrl, new Hessian2Serializer());
+				nettyClient.open();
+				RpcResponse response = nettyClient.request(request);
 				if (response.getError() != null) {
 					throw response.getError();
 				} else {

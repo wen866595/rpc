@@ -3,7 +3,7 @@ package net.coderbee.rpc.core.codec;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
-import net.coderbee.rpc.core.serialize.SerializationUtil;
+import net.coderbee.rpc.core.serialize.Serializer;
 
 import java.util.List;
 
@@ -11,9 +11,11 @@ import java.util.List;
  * Created by coderbee on 2017/5/20.
  */
 public class RpcDecoder extends ByteToMessageDecoder {
+	private Serializer serializer;
 	private Class<?> genericClass;
 
-	public RpcDecoder(Class<?> genericClass) {
+	public RpcDecoder(Serializer serializer, Class<?> genericClass) {
+		this.serializer = serializer;
 		this.genericClass = genericClass;
 	}
 
@@ -37,7 +39,7 @@ public class RpcDecoder extends ByteToMessageDecoder {
 		byte[] data = new byte[dataLength];
 		buf.readBytes(data);
 
-		Object obj = SerializationUtil.deseriallize(data, genericClass);
+		Object obj = serializer.deSerialize(data, genericClass);
 		list.add(obj);
 	}
 }

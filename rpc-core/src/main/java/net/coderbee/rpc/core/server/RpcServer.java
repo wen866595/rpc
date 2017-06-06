@@ -12,6 +12,8 @@ import net.coderbee.rpc.core.RpcRequest;
 import net.coderbee.rpc.core.RpcResponse;
 import net.coderbee.rpc.core.codec.RpcDecoder;
 import net.coderbee.rpc.core.codec.RpcEncoder;
+import net.coderbee.rpc.core.serialize.Serializer;
+import net.coderbee.rpc.core.serialize.impl.Hessian2Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +24,7 @@ public class RpcServer {
 	private static final Logger LOGGER = LoggerFactory.getLogger(RpcServer.class);
 
 	private MethodInvoker methodInvoker;
+	private Serializer serializer;
 
 	private String serverAddress;
 	private ServiceRegistry serviceRegistry;
@@ -40,6 +43,7 @@ public class RpcServer {
 		}
 
 		this.methodInvoker = methodInvoker;
+		this.serializer = new Hessian2Serializer();
 		this.serverAddress = serverAddress;
 		this.serviceRegistry = serviceRegistry;
 	}
@@ -55,8 +59,8 @@ public class RpcServer {
 						@Override
 						protected void initChannel(SocketChannel socketChannel) throws Exception {
 							socketChannel.pipeline()
-									.addLast(new RpcDecoder(RpcRequest.class))
-									.addLast(new RpcEncoder(RpcResponse.class))
+									.addLast(new RpcDecoder(serializer, RpcRequest.class))
+									.addLast(new RpcEncoder(serializer, RpcResponse.class))
 									.addLast(new RpcHandler(methodInvoker));
 						}
 					})

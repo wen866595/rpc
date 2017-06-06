@@ -3,7 +3,7 @@ package net.coderbee.rpc.core.protocol;
 import net.coderbee.rpc.core.*;
 import net.coderbee.rpc.core.serialize.Serializer;
 import net.coderbee.rpc.core.transport.Client;
-import net.coderbee.rpc.core.transport.NettyClient;
+import net.coderbee.rpc.core.transport.netty.NettyClient;
 
 import java.io.IOException;
 
