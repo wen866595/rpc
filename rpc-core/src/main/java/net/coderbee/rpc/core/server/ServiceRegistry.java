@@ -1,6 +1,7 @@
 package net.coderbee.rpc.core.server;
 
 import net.coderbee.rpc.core.Constant;
+import net.coderbee.rpc.core.URL;
 import org.apache.zookeeper.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,11 +25,11 @@ public class ServiceRegistry {
 		this.registryAddress = registryAddress;
 	}
 
-	public void register(String data) {
-		if (data != null) {
+	public void register(URL serviceUrl) {
+		if (serviceUrl != null) {
 			ZooKeeper zk = connectServer();
 			if (zk != null) {
-				createNode(zk, data);
+				createNode(zk, serviceUrl);
 			}
 		}
 	}
@@ -50,11 +51,11 @@ public class ServiceRegistry {
 		return zk;
 	}
 
-	private void createNode(ZooKeeper zk, String data) {
+	private void createNode(ZooKeeper zk, URL serviceUrl) {
 		try {
-			byte[] bytes = data.getBytes();
+			byte[] bytes = serviceUrl.toString().getBytes();
 			String path = zk.create(Constant.ZK_DATA_PATH, bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
-			logger.info("create zookeeper node ({} => {})", path, data);
+			logger.info("create zookeeper node ({} => {}, path:{})", path, serviceUrl.toString(), path);
 		} catch (InterruptedException | KeeperException e) {
 			logger.error("", e);
 		}

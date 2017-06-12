@@ -19,8 +19,8 @@ public class NettyHessianProtocol implements Protocol {
 	}
 
 	@Override
-	public <T> Refer<T> refer(Class<T> clazz, URL url, Serializer serializer) {
-		return new NettyHessianRefer<T>(clazz, url, serializer);
+	public <T> Refer<T> refer(Class<T> clazz, URL url) {
+		return new NettyHessianRefer<T>(clazz, url);
 	}
 
 	@Override
@@ -34,12 +34,11 @@ public class NettyHessianProtocol implements Protocol {
 		private Serializer serializer;
 		private Client client;
 
-		public NettyHessianRefer(Class<T> clazz, URL serviceUrl, Serializer serializer) {
+		public NettyHessianRefer(Class<T> clazz, URL serviceUrl) {
 			this.clazz = clazz;
 			this.serviceUrl = serviceUrl;
-			this.serializer = serializer;
 
-			client = new NettyClient(serviceUrl, serializer);
+			client = new NettyClient(serviceUrl);
 		}
 
 		@Override

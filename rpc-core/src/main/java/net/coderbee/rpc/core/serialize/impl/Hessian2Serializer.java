@@ -2,6 +2,7 @@ package net.coderbee.rpc.core.serialize.impl;
 
 import com.caucho.hessian.io.Hessian2StreamingInput;
 import com.caucho.hessian.io.Hessian2StreamingOutput;
+import net.coderbee.rpc.core.extension.SpiMeta;
 import net.coderbee.rpc.core.serialize.Serializer;
 
 import java.io.ByteArrayInputStream;
@@ -11,6 +12,7 @@ import java.io.IOException;
 /**
  * Created by coderbee on 2017/5/21.
  */
+@SpiMeta(name = "hessian")
 public class Hessian2Serializer implements Serializer {
 
 	@Override

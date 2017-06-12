@@ -4,7 +4,6 @@ import net.coderbee.rpc.core.RpcException;
 import net.coderbee.rpc.core.RpcRequest;
 import net.coderbee.rpc.core.RpcResponse;
 import net.coderbee.rpc.core.URL;
-import net.coderbee.rpc.core.serialize.Serializer;
 import net.coderbee.rpc.core.transport.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,17 +18,16 @@ public class NettyClient implements Client {
 	private static Logger logger = LoggerFactory.getLogger(NettyClient.class);
 
 	private URL serviceUrl;
-	private Serializer serializer;
 	private NettyChannel channel;
 
-	public NettyClient(URL serviceUrl, Serializer serializer) {
+	public NettyClient(URL serviceUrl) {
 		this.serviceUrl = serviceUrl;
-		this.serializer = serializer;
+		System.out.println("new NettyClient");
 	}
 
 	@Override
 	public boolean open() {
-		channel = new NettyChannel(serializer, serviceUrl);
+		channel = new NettyChannel(serviceUrl);
 		return channel.open();
 	}
 

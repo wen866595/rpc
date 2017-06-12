@@ -8,8 +8,10 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import net.coderbee.rpc.core.RpcRequest;
 import net.coderbee.rpc.core.RpcResponse;
 import net.coderbee.rpc.core.URL;
+import net.coderbee.rpc.core.URLParamType;
 import net.coderbee.rpc.core.codec.RpcDecoder;
 import net.coderbee.rpc.core.codec.RpcEncoder;
+import net.coderbee.rpc.core.extension.ExtensionLoader;
 import net.coderbee.rpc.core.serialize.Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,9 +33,10 @@ class NettyChannel extends SimpleChannelInboundHandler<RpcResponse> {
 	private ConcurrentMap<String, NettyRpcResponse> requestMap = new ConcurrentHashMap<>();
 	private Channel channel;
 
-	public NettyChannel(Serializer serializer, URL serviceUrl) {
-		this.serializer = serializer;
+	public NettyChannel(URL serviceUrl) {
 		this.serviceUrl = serviceUrl;
+		serializer = ExtensionLoader.getSpi(Serializer.class, serviceUrl, URLParamType.serializer);
+		System.out.println("new NettyChannel, serviceUrl: " + serviceUrl);
 	}
 
 	public boolean open() {
@@ -48,13 +51,14 @@ class NettyChannel extends SimpleChannelInboundHandler<RpcResponse> {
 								.addLast(NettyChannel.this);
 					}
 				}).option(ChannelOption.SO_KEEPALIVE, true);
+		System.out.println("start netty channel open .");
 		try {
 			ChannelFuture future = bootstrap.connect(serviceUrl.getHost(), serviceUrl.getPort()).sync();
 			channel = future.channel();
 		} catch (InterruptedException e) {
 			logger.error("connect to " + serviceUrl.getHost() + ":" + serviceUrl.getPort() + " failed .", e);
 		}
-
+		System.out.println("netty channel open finished .");
 		return true;
 	}
 
@@ -69,7 +73,7 @@ class NettyChannel extends SimpleChannelInboundHandler<RpcResponse> {
 		NettyRpcResponse respFuture = new NettyRpcResponse();
 		requestMap.put(request.getRequestId(), respFuture);
 
-		ChannelFuture future = channel.writeAndFlush(request);
+		channel.writeAndFlush(request);
 		return respFuture.get();
 	}
 

@@ -3,7 +3,6 @@ package net.coderbee.rpc.core.client;
 import net.coderbee.rpc.core.RpcRequest;
 import net.coderbee.rpc.core.RpcResponse;
 import net.coderbee.rpc.core.URL;
-import net.coderbee.rpc.core.serialize.impl.Hessian2Serializer;
 import net.coderbee.rpc.core.transport.netty.NettyClient;
 
 import java.lang.reflect.InvocationHandler;
@@ -15,17 +14,13 @@ import java.util.UUID;
  * Created by coderbee on 2017/5/20.
  */
 public class RpcProxy {
-	private String serverAddress;
 	private ServiceDiscovery serviceDiscovery;
-
-	public RpcProxy(String serverAddress) {
-		this.serverAddress = serverAddress;
-	}
 
 	public RpcProxy(ServiceDiscovery serviceDiscovery) {
 		this.serviceDiscovery = serviceDiscovery;
 	}
 
+	@SuppressWarnings("unchecked")
 	public <T> T create(Class<?> interfaceClass) {
 		return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class<?>[]{interfaceClass}, new
 				InvocationHandler() {
@@ -38,16 +33,10 @@ public class RpcProxy {
 				request.setParameterTypes(method.getParameterTypes());
 				request.setParameters(args);
 
-				if (serviceDiscovery != null) {
-					serverAddress = serviceDiscovery.discover();
-				}
+				URL serviceUrl = serviceDiscovery.discover();
+				serviceUrl.setPath(interfaceClass.getName());
 
-				String[] split = serverAddress.split(":");
-				String host = split[0];
-				int port = Integer.parseInt(split[1]);
-
-				URL serviceUrl = new URL("nettyHessian", host, port, interfaceClass.getName());
-				NettyClient nettyClient = new NettyClient(serviceUrl, new Hessian2Serializer());
+				NettyClient nettyClient = new NettyClient(serviceUrl);
 				nettyClient.open();
 				RpcResponse response = nettyClient.request(request);
 				if (response.getError() != null) {

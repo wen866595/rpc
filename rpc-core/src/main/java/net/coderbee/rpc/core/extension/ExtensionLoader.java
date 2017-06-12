@@ -1,6 +1,7 @@
 package net.coderbee.rpc.core.extension;
 
 import net.coderbee.rpc.core.RpcException;
+import net.coderbee.rpc.core.URLParamType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * 组件实现的加载器。只加载类型为 T 的所有组件实现。
+ * 缁勪欢瀹炵幇鐨勫姞杞藉櫒銆傚彧鍔犺浇绫诲瀷涓� T 鐨勬墍鏈夌粍浠跺疄鐜般��
  *
  * @author coderbee on 2017/6/6.
  */
@@ -28,7 +29,7 @@ public class ExtensionLoader<T> {
 	private ClassLoader classLoader;
 	private Class<T> type;
 
-	private ConcurrentMap<String, T> singletonInstances = null;
+	private ConcurrentMap<String, T> singletonInstances = new ConcurrentHashMap<>();
 	private ConcurrentMap<String, Class<T>> extensionClasses = null;
 	private volatile boolean init = false;
 
@@ -41,6 +42,17 @@ public class ExtensionLoader<T> {
 		this.classLoader = classLoader;
 	}
 
+	public static <T> T getSpi(Class<T> type, net.coderbee.rpc.core.URL url, URLParamType paramType) {
+		ExtensionLoader<T> extensionLoader = getExtensionLoader(type);
+		String spiName = url.getParameter(paramType.getName());
+		return extensionLoader.getExtension(spiName);
+	}
+
+	public static <T> T getSpi(Class<T> type, String spiName) {
+		ExtensionLoader<T> extensionLoader = getExtensionLoader(type);
+		return extensionLoader.getExtension(spiName);
+	}
+
 	public static synchronized <T> ExtensionLoader<T> initExtensionLoader(Class<T> type) {
 		ExtensionLoader<T> loader = (ExtensionLoader<T>) extensionLoaders.get(type);
 		if (loader == null) {
@@ -50,8 +62,29 @@ public class ExtensionLoader<T> {
 		return loader;
 	}
 
-	public static synchronized <T> ExtensionLoader<T> getExtensionLoader(Class<T> type) {
-		return initExtensionLoader(type);
+	public static <T> ExtensionLoader<T> getExtensionLoader(Class<T> type) {
+		checkInterfaceType(type);
+
+		ExtensionLoader<T> loader = (ExtensionLoader<T>) extensionLoaders.get(type);
+		if (loader == null) {
+			loader = initExtensionLoader(type);
+		}
+
+		return loader;
+	}
+
+	private static <T> void checkInterfaceType(Class<T> type) {
+		if (type == null) {
+			throw new RpcException("extension class type is null");
+		}
+
+		if (!type.isInterface()) {
+			throw new RpcException("type is not interface");
+		}
+
+		if (!type.isAnnotationPresent(Spi.class)) {
+			throw new RpcException("type is not Spi annotation present");
+		}
 	}
 
 	private void insureInit() {

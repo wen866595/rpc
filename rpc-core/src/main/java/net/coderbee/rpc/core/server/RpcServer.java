@@ -10,6 +10,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import net.coderbee.rpc.core.MethodInvoker;
 import net.coderbee.rpc.core.RpcRequest;
 import net.coderbee.rpc.core.RpcResponse;
+import net.coderbee.rpc.core.URL;
 import net.coderbee.rpc.core.codec.RpcDecoder;
 import net.coderbee.rpc.core.codec.RpcEncoder;
 import net.coderbee.rpc.core.serialize.Serializer;
@@ -26,25 +27,25 @@ public class RpcServer {
 	private MethodInvoker methodInvoker;
 	private Serializer serializer;
 
-	private String serverAddress;
+	private URL serviceUrl;
 	private ServiceRegistry serviceRegistry;
 
-	public RpcServer(MethodInvoker methodInvoker, String serverAddress) {
-		this(methodInvoker, serverAddress, null);
+	public RpcServer(MethodInvoker methodInvoker, URL serviceUrl) {
+		this(methodInvoker, serviceUrl, null);
 	}
 
-	public RpcServer(MethodInvoker methodInvoker, String serverAddress, ServiceRegistry serviceRegistry) {
+	public RpcServer(MethodInvoker methodInvoker, URL serviceUrl, ServiceRegistry serviceRegistry) {
 		if (methodInvoker == null) {
 			throw new NullPointerException("methodInvoker must be not null");
 		}
 
-		if (serverAddress == null && serviceRegistry == null) {
+		if (serviceUrl == null && serviceRegistry == null) {
 			throw new IllegalArgumentException("serverAddress, serviceRegistry 不能同时为空");
 		}
 
 		this.methodInvoker = methodInvoker;
 		this.serializer = new Hessian2Serializer();
-		this.serverAddress = serverAddress;
+		this.serviceUrl = serviceUrl;
 		this.serviceRegistry = serviceRegistry;
 	}
 
@@ -66,15 +67,12 @@ public class RpcServer {
 					})
 					.option(ChannelOption.SO_BACKLOG, 128)
 					.childOption(ChannelOption.SO_KEEPALIVE, true);
-			String[] array = serverAddress.split(":");
-			String host = array[0];
-			int port = Integer.parseInt(array[1]);
 
-			ChannelFuture future = bootstrap.bind(host, port).sync();
-			LOGGER.debug("server started on port {}", port);
+			ChannelFuture future = bootstrap.bind(serviceUrl.getHost(), serviceUrl.getPort()).sync();
+			LOGGER.debug("server started on port {}", serviceUrl.getPort());
 
 			if (serviceRegistry != null) {
-				serviceRegistry.register(serverAddress);
+				serviceRegistry.register(serviceUrl);
 			}
 
 			future.channel().closeFuture().sync();
