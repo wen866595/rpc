@@ -10,5 +10,6 @@ public interface Constant {
 	String ZK_DATA_PATH = ZK_REGISTRY_PATH + "/server";
 	int ZK_SESSION_TIMEOUT = 5000;
 
+	String defaultValue = "default";
 
 }

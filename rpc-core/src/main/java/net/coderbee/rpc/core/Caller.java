@@ -7,10 +7,10 @@ import java.io.IOException;
  *
  * @author coderbee
  */
-public interface Invoker<T> {
+public interface Caller<T> {
 
 	Class<T> getInterface();
 
-	Object invoke(RpcRequest request) throws RpcException, IOException;
+	RpcResponse invoke(RpcRequest request) throws RpcException, IOException;
 
 }

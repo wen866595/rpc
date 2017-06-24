@@ -7,7 +7,7 @@ package net.coderbee.rpc.core;
  */
 public interface Exporter<T> {
 
-	Invoker getInvoker();
+	Caller getInvoker();
 
 	void unexport();
 

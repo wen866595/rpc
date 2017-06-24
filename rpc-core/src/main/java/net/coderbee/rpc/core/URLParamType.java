@@ -4,6 +4,7 @@ package net.coderbee.rpc.core;
  * @author coderbee on 2017/6/12.
  */
 public enum URLParamType {
+	proxy("proxyType", "default"),
 	serializer("serializer", "hessian"),
 	endpointFactory("endpointFactory", "nettyHessian");
 

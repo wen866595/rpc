@@ -1,6 +1,7 @@
 package net.coderbee.rpc.demo.server;
 
 import net.coderbee.rpc.core.MethodInvoker;
+import net.coderbee.rpc.core.URL;
 import net.coderbee.rpc.core.server.RpcServer;
 import net.coderbee.rpc.core.server.ServiceRegistry;
 import net.coderbee.rpc.spring.SpringBeanMethodInvoker;
@@ -20,8 +21,11 @@ public class RpcServerApplication {
 
 	@Bean
 	public RpcServerStarter initRpcServer(MethodInvoker methodInvoker,
-	                               ServiceRegistry serviceRegistry) {
-		RpcServer rpcServer = new RpcServer(methodInvoker, "127.0.0.1:9999", serviceRegistry);
+	                                      ServiceRegistry serviceRegistry) {
+		URL url = new URL("nettyHessian", "localhost", 9999, "test");
+		url.setParameter("serializer", "hessian");
+
+		RpcServer rpcServer = new RpcServer(methodInvoker, url, serviceRegistry);
 
 		return new RpcServerStarter(rpcServer);
 	}

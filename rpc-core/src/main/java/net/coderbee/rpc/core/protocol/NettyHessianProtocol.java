@@ -14,7 +14,7 @@ public class NettyHessianProtocol implements Protocol {
 
 
 	@Override
-	public <T> Exporter<T> exporter(Invoker invoker) {
+	public <T> Exporter<T> exporter(Caller invoker) {
 		return null;
 	}
 

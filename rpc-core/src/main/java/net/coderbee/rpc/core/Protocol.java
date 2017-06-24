@@ -13,7 +13,7 @@ public interface Protocol {
 	 * @param invoker 方法调用器
 	 * @return 服务定义器
 	 */
-	<T> Exporter<T> exporter(Invoker invoker);
+	<T> Exporter<T> exporter(Caller invoker);
 
 	/**
 	 * 返回该协议的服务引用器
