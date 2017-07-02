@@ -12,6 +12,7 @@ import java.lang.reflect.Proxy;
 @SpiMeta(name = "default")
 public class JavaProxyFactory implements ProxyFactory {
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T getProxy(Class<T> type, InvocationHandler invocationHandler) {
 		ClassLoader classLoader = JavaProxyFactory.class.getClassLoader();

@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * 抽象的注册中心，主要用于记录日志。具体实现由子类提供。
+ *
  * @author coderbee on 2017/6/24.
  */
 public abstract class AbstractRegistry implements Registry {
@@ -30,7 +32,7 @@ public abstract class AbstractRegistry implements Registry {
 			logger.warn("url is null");
 			return;
 		}
-		logger.info("register:{}", url);
+		logger.info("register url({}) in register({})", url, registryUrl);
 
 		doRegister(url);
 		registedUrls.add(url);
@@ -42,7 +44,7 @@ public abstract class AbstractRegistry implements Registry {
 			logger.warn("url is null");
 			return;
 		}
-		logger.info("unregister:{}", url);
+		logger.info("unregister url({}) in register({})", url, registryUrl);
 
 		doUnregister(url);
 		registedUrls.remove(url);
@@ -54,11 +56,10 @@ public abstract class AbstractRegistry implements Registry {
 			logger.warn("url or listener is null");
 			return;
 		}
+		logger.info("listener({}) subscribe url({}) in register({})", listener, url, registryUrl);
 
 		doSubscribe(url, listener);
-		registedUrls.remove(url);
 	}
-
 
 	@Override
 	public void unsubscribe(URL url, NotifyListener listener) {
@@ -70,7 +71,6 @@ public abstract class AbstractRegistry implements Registry {
 
 		doUnsubscribe(url, listener);
 	}
-
 
 
 	@Override

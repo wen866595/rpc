@@ -34,6 +34,22 @@ public class URL {
 		this.parameters = parameters;
 	}
 
+	private static String urlDecode(String str) {
+		try {
+			return URLDecoder.decode(str, Constant.charset);
+		} catch (UnsupportedEncodingException ignored) {
+			return str;
+		}
+	}
+
+	private static String urlEncode(String str) {
+		try {
+			return URLEncoder.encode(str, Constant.charset);
+		} catch (UnsupportedEncodingException ignored) {
+			return str;
+		}
+	}
+
 	public static URL build(String string) {
 		int pi = string.indexOf("://");
 		String protocol = string.substring(0, pi);
@@ -47,25 +63,55 @@ public class URL {
 		int port = Integer.parseInt(string.substring(0, porti));
 		string = string.substring(porti + 1);
 
-		int pathi = string.indexOf('?');
-		String path = string.substring(0, pathi);
-		string = string.substring(pathi + 1);
-
 		Map<String, String> patameters = new HashMap<>();
-		if (!"".equals(string)) {
-			String[] split = string.split("&");
-			try {
+		String path;
+		int pathi = string.indexOf('?');
+		if (pathi != -1) {
+			path = string.substring(0, pathi);
+			string = string.substring(pathi + 1);
+
+			if (!"".equals(string)) {
+				String[] split = string.split("&");
 				for (String kvs : split) {
 					String[] kv = kvs.split("=");
-					String paramName = URLDecoder.decode(kv[0], Constant.charset);
-					String paramValue = URLDecoder.decode(kv[1], Constant.charset);
+					String paramName = urlDecode(kv[0]);
+					String paramValue = urlDecode(kv[1]);
 					patameters.put(paramName, paramValue);
 				}
-			} catch (UnsupportedEncodingException ignored) {
+			}
+		} else {
+			path = string;
+		}
+
+
+		return new URL(protocol, host, port, path, patameters);
+	}
+
+	public String toServicePath() {
+		return protocol + Constant.PATH_SEPARATOR + path + Constant.PATH_SEPARATOR;
+	}
+
+	public String toFullUrlString() {
+		StringBuilder sb = new StringBuilder(128);
+		sb.append(protocol).append("://").append(host).append(':').append(port).append('/').append(path);
+		if (parameters.size() > 0) {
+			boolean first = true;
+			for (Map.Entry<String, String> param : parameters.entrySet()) {
+				if (first) {
+					sb.append('?');
+					first = false;
+				} else {
+					sb.append('&');
+				}
+				sb.append(urlEncode(param.getKey())).append('=').append(urlEncode(param.getValue()));
 			}
 		}
 
-		return new URL(protocol, host, port, path, patameters);
+		return sb.toString();
+	}
+
+	public String getHostPortString() {
+		return host + ":" + port;
 	}
 
 	public String getProtocol() {

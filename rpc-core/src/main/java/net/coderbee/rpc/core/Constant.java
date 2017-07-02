@@ -12,4 +12,6 @@ public interface Constant {
 
 	String defaultValue = "default";
 
+	String PATH_SEPARATOR = "/";
+
 }

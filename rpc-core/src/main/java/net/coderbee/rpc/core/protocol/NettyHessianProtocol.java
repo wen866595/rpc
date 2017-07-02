@@ -47,7 +47,7 @@ public class NettyHessianProtocol implements Protocol {
 		}
 
 		@Override
-		public Object invoke(RpcRequest request) throws RpcException, IOException {
+		public RpcResponse invoke(RpcRequest request) throws RpcException, IOException {
 			return client.request(request);
 		}
 	}

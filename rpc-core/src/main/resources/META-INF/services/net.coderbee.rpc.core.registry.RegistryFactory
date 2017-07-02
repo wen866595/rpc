@@ -1,0 +1,3 @@
+
+net.coderbee.rpc.core.registry.support.DirectRegistryFactory
+net.coderbee.rpc.core.registry.support.zk.ZooKeeperRegistryFactory
