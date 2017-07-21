@@ -189,4 +189,8 @@ public class URL {
 		}
 		return sb.toString();
 	}
+
+	public String getUri() {
+		return protocol + "://" + host + ":" + port + Constant.PATH_SEPARATOR + path;
+	}
 }

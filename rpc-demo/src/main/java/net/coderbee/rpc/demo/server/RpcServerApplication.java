@@ -2,8 +2,10 @@ package net.coderbee.rpc.demo.server;
 
 import net.coderbee.rpc.core.MethodInvoker;
 import net.coderbee.rpc.core.URL;
+import net.coderbee.rpc.core.extension.ExtensionLoader;
+import net.coderbee.rpc.core.registry.Registry;
+import net.coderbee.rpc.core.registry.RegistryFactory;
 import net.coderbee.rpc.core.server.RpcServer;
-import net.coderbee.rpc.core.server.ServiceRegistry;
 import net.coderbee.rpc.spring.SpringBeanMethodInvoker;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -21,11 +23,11 @@ public class RpcServerApplication {
 
 	@Bean
 	public RpcServerStarter initRpcServer(MethodInvoker methodInvoker,
-	                                      ServiceRegistry serviceRegistry) {
-		URL url = new URL("nettyHessian", "localhost", 9999, "test");
+	                                      Registry registry) {
+		URL url = new URL("rpc", "localhost", 9999, "net.coderbee.rpc.demo.HelloService");
 		url.setParameter("serializer", "hessian");
 
-		RpcServer rpcServer = new RpcServer(methodInvoker, url, serviceRegistry);
+		RpcServer rpcServer = new RpcServer(methodInvoker, url, registry);
 
 		return new RpcServerStarter(rpcServer);
 	}
@@ -36,9 +38,10 @@ public class RpcServerApplication {
 	}
 
 	@Bean
-	public ServiceRegistry getServiceRegistry() {
-		String registryAddress = "127.0.0.1:2181";
-		return new ServiceRegistry(registryAddress);
+	public Registry getServiceRegistry() {
+		URL registryUrl = new URL("zookeeper", "127.0.0.1", 2181, "");
+		RegistryFactory registryFactory = ExtensionLoader.getSpi(RegistryFactory.class, registryUrl.getProtocol());
+		return registryFactory.getRegistry(registryUrl);
 	}
 
 }

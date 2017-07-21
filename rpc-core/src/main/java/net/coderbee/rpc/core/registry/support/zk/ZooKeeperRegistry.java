@@ -3,6 +3,7 @@ package net.coderbee.rpc.core.registry.support.zk;
 import net.coderbee.rpc.core.Constant;
 import net.coderbee.rpc.core.RpcException;
 import net.coderbee.rpc.core.URL;
+import net.coderbee.rpc.core.URLParamType;
 import net.coderbee.rpc.core.registry.NotifyListener;
 import net.coderbee.rpc.core.registry.support.AbstractRegistry;
 import org.apache.zookeeper.*;
@@ -11,6 +12,7 @@ import org.apache.zookeeper.data.Stat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 /**
  * @author coderbee on 2017/6/26.
@@ -59,15 +61,27 @@ public class ZooKeeperRegistry extends AbstractRegistry {
 		removeNode(url, ZkNodeType.client);
 		createNode(url, ZkNodeType.client);
 
-		String serverPath = ZkUtils.toNodePath(url, ZkNodeType.server);
+		String servicePath = ZkUtils.toNodeTypePath(url, ZkNodeType.server);
+		System.out.println("subscribe " + servicePath);
 		serverLock.lock();
 		try {
-			List<String> list = zooKeeper.getChildren(serverPath, new Watcher() {
-				@Override
-				public void process(WatchedEvent event) {
+			List<String> children = zooKeeper.getChildren(servicePath, (WatchedEvent event) -> {
+				//if (event.getType() == Watcher.Event.EventType.NodeChildrenChanged) {
+					doSubscribe(url, listener);
+				//}
+			});
+			System.out.println("doSubscribe children:" + children);
 
-				}
-			}, null);
+			List<URL> registeredUrls = children.stream()
+					.map(string -> {
+						String[] split = string.split(":", 2);
+						URL serviceUrl = new URL(url.getProtocol(), split[0], Integer.parseInt(split[1]), url.getPath());
+						serviceUrl.setParameter(URLParamType.proxy.name(), "default");
+						System.out.println("zk get service url:" + serviceUrl.toFullUrlString());
+						return serviceUrl;
+					})
+					.collect(Collectors.toList());
+			listener.notify(registryUrl, registeredUrls);
 
 		} catch (KeeperException | InterruptedException e) {
 			logger.error("", e);
@@ -78,12 +92,7 @@ public class ZooKeeperRegistry extends AbstractRegistry {
 
 	@Override
 	protected void doUnsubscribe(URL url, NotifyListener listener) {
-		serverLock.lock();
-		try {
-
-		} finally {
-			serverLock.unlock();
-		}
+		removeNode(url, ZkNodeType.client);
 	}
 
 	@Override
@@ -136,15 +145,16 @@ public class ZooKeeperRegistry extends AbstractRegistry {
 
 	private void createNode(URL url, ZkNodeType nodeType) {
 		try {
-			String nodeTypePath = ZkUtils.toNodeTypePath(url, ZkNodeType.server);
-			System.out.println("createNode, nodeTypePaht:" + nodeTypePath);
+			String nodeTypePath = ZkUtils.toNodeTypePath(url, nodeType);
 			Stat exists = zooKeeper.exists(nodeTypePath, false);
 			if (exists == null) {
 				mkdirParent("", nodeTypePath);
 			}
 
-			zooKeeper.create(ZkUtils.toNodePath(url, ZkNodeType.server), url.toFullUrlString().getBytes(),
-					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+			String nodePath = ZkUtils.toNodePath(url, nodeType);
+			System.out.println("create nodePath:" + nodePath);
+			zooKeeper.create(nodePath, url.toFullUrlString().getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE,
+					CreateMode.EPHEMERAL);
 
 		} catch (InterruptedException | KeeperException e) {
 			logger.error("", e);

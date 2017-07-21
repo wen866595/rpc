@@ -50,6 +50,16 @@ public class NettyHessianProtocol implements Protocol {
 		public RpcResponse invoke(RpcRequest request) throws RpcException, IOException {
 			return client.request(request);
 		}
+
+		@Override
+		public URL getUrl() {
+			return null;
+		}
+
+		@Override
+		public void destroy() {
+
+		}
 	}
 
 }

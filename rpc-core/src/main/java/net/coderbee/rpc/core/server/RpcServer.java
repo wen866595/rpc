@@ -13,6 +13,7 @@ import net.coderbee.rpc.core.RpcResponse;
 import net.coderbee.rpc.core.URL;
 import net.coderbee.rpc.core.codec.RpcDecoder;
 import net.coderbee.rpc.core.codec.RpcEncoder;
+import net.coderbee.rpc.core.registry.Registry;
 import net.coderbee.rpc.core.serialize.Serializer;
 import net.coderbee.rpc.core.serialize.impl.Hessian2Serializer;
 import org.slf4j.Logger;
@@ -28,25 +29,25 @@ public class RpcServer {
 	private Serializer serializer;
 
 	private URL serviceUrl;
-	private ServiceRegistry serviceRegistry;
+	private Registry registry;
 
 	public RpcServer(MethodInvoker methodInvoker, URL serviceUrl) {
 		this(methodInvoker, serviceUrl, null);
 	}
 
-	public RpcServer(MethodInvoker methodInvoker, URL serviceUrl, ServiceRegistry serviceRegistry) {
+	public RpcServer(MethodInvoker methodInvoker, URL serviceUrl, Registry registry) {
 		if (methodInvoker == null) {
 			throw new NullPointerException("methodInvoker must be not null");
 		}
 
-		if (serviceUrl == null && serviceRegistry == null) {
+		if (serviceUrl == null && registry == null) {
 			throw new IllegalArgumentException("serverAddress, serviceRegistry 不能同时为空");
 		}
 
 		this.methodInvoker = methodInvoker;
 		this.serializer = new Hessian2Serializer();
 		this.serviceUrl = serviceUrl;
-		this.serviceRegistry = serviceRegistry;
+		this.registry = registry;
 	}
 
 	public void start() throws Exception {
@@ -71,8 +72,8 @@ public class RpcServer {
 			ChannelFuture future = bootstrap.bind(serviceUrl.getHost(), serviceUrl.getPort()).sync();
 			LOGGER.debug("server started on port {}", serviceUrl.getPort());
 
-			if (serviceRegistry != null) {
-				serviceRegistry.register(serviceUrl);
+			if (registry != null) {
+				registry.register(serviceUrl);
 			}
 
 			future.channel().closeFuture().sync();

@@ -6,7 +6,12 @@ package net.coderbee.rpc.core;
 public enum URLParamType {
 	proxy("proxyType", "default"),
 	serializer("serializer", "hessian"),
-	endpointFactory("endpointFactory", "nettyHessian");
+	endpointFactory("endpointFactory", "nettyHessian"),
+
+	/**
+	 * 在 Registry 的 URl 中传递 Refer URL
+	 */
+	embed("embed", "embed");
 
 	private String name;
 	private String value;

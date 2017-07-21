@@ -23,6 +23,7 @@ public class RefererConfig<T> extends AbstractConfig {
 	// 点对点直连服务提供地址
 	private String directUrl;
 
+	private RegistryConfig registryConfig;
 	private URL registryUrl;
 
 	private ProtocolConfig protocolConfig;
@@ -53,7 +54,6 @@ public class RefererConfig<T> extends AbstractConfig {
 
 		Map<String, String> params = new HashMap<String, String>();
 
-//		collectConfigParams(params, )
 		collectMethodParams(params, methods);
 
 		String localHost = NetUtil.getLocalHost();
@@ -68,6 +68,7 @@ public class RefererConfig<T> extends AbstractConfig {
 	}
 
 	private ClusterSupport<T> createClusterSupport(ConfigerHandler configerHandler, URL refUrl, URL registryUrl) {
+		registryUrl.setParameter(URLParamType.embed.getName(), refUrl.toFullUrlString());
 		return configerHandler.createClusterSupport(interfaceClass, registryUrl);
 	}
 
@@ -109,5 +110,14 @@ public class RefererConfig<T> extends AbstractConfig {
 
 	public void setClusterSupport(ClusterSupport<T> clusterSupport) {
 		this.clusterSupport = clusterSupport;
+	}
+
+	public RegistryConfig getRegistryConfig() {
+		return registryConfig;
+	}
+
+	public void setRegistryConfig(RegistryConfig registryConfig) {
+		this.registryConfig = registryConfig;
+		this.registryUrl = registryConfig.toURL();
 	}
 }

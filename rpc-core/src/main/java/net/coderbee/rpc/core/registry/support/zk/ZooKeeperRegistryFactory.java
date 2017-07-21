@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
-@SpiMeta(name = "zookerper")
+@SpiMeta(name = "zookeeper")
 public class ZooKeeperRegistryFactory implements RegistryFactory {
 	private static Logger logger = LoggerFactory.getLogger(ZooKeeperRegistryFactory.class);
 

@@ -7,5 +7,8 @@ package net.coderbee.rpc.core;
  */
 public interface Refer<T> extends Caller<T> {
 
+	URL getUrl();
+
+	void destroy();
 
 }

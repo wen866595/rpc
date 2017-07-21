@@ -39,5 +39,4 @@ public class SimpleConfigerHandler implements ConfigerHandler {
 
 	}
 
-
 }
