@@ -1,6 +1,5 @@
 package net.coderbee.rpc.core.server;
 
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import net.coderbee.rpc.core.MethodInvoker;
@@ -27,13 +26,15 @@ public class RpcHandler extends SimpleChannelInboundHandler<RpcRequest> {
 	protected void channelRead0(ChannelHandlerContext ctx, RpcRequest rpcRequest) throws Exception {
 		RpcResponse rpcResponse = new RpcResponse();
 		rpcResponse.setRequestId(rpcRequest.getRequestId());
+		System.out.println("get requestId:" + rpcRequest.getRequestId());
 		try {
 			Object result = handle(rpcRequest);
 			rpcResponse.setResult(result);
 		} catch (Throwable e) {
 			rpcResponse.setError(e);
+			e.printStackTrace();
 		}
-		ctx.writeAndFlush(rpcResponse).addListener(ChannelFutureListener.CLOSE);
+		ctx.writeAndFlush(rpcResponse);//.addListener(ChannelFutureListener.CLOSE);
 	}
 
 	private Object handle(RpcRequest rpcRequest) throws Throwable {

@@ -1,10 +1,13 @@
 package net.coderbee.rpc.core;
 
+import net.coderbee.rpc.core.extension.Spi;
+
 /**
  * 调用协议定义
  *
  * @author coderbee
  */
+@Spi
 public interface Protocol {
 
 	/**

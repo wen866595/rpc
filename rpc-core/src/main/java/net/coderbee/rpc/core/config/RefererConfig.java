@@ -57,12 +57,12 @@ public class RefererConfig<T> extends AbstractConfig {
 		collectMethodParams(params, methods);
 
 		String localHost = NetUtil.getLocalHost();
-		URL refUrl = new URL(protocolConfig.getName(), localHost, 0, interfaceClass.getName());
+		URL refUrl = new URL(protocolConfig.getName(), localHost, 0, interfaceClass.getName(), params);
 
 		clusterSupport = createClusterSupport(configerHandler, refUrl, registryUrl);
 
 		ref = configerHandler.refer(interfaceClass, clusterSupport.getCluster(), refUrl.getParameter(URLParamType
-				.proxy.getName()));
+				.proxy.getName(), URLParamType.proxy.getValue()));
 
 		isInit.set(true);
 	}

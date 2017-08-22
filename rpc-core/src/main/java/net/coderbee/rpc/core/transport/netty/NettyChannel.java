@@ -8,7 +8,6 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import net.coderbee.rpc.core.RpcRequest;
 import net.coderbee.rpc.core.RpcResponse;
 import net.coderbee.rpc.core.URL;
-import net.coderbee.rpc.core.URLParamType;
 import net.coderbee.rpc.core.codec.RpcDecoder;
 import net.coderbee.rpc.core.codec.RpcEncoder;
 import net.coderbee.rpc.core.extension.ExtensionLoader;
@@ -35,7 +34,7 @@ class NettyChannel extends SimpleChannelInboundHandler<RpcResponse> {
 
 	public NettyChannel(URL serviceUrl) {
 		this.serviceUrl = serviceUrl;
-		serializer = ExtensionLoader.getSpi(Serializer.class, serviceUrl, URLParamType.serializer);
+		serializer = ExtensionLoader.getSpi(Serializer.class, "hessian");
 		System.out.println("new NettyChannel, serviceUrl: " + serviceUrl);
 	}
 
@@ -65,6 +64,7 @@ class NettyChannel extends SimpleChannelInboundHandler<RpcResponse> {
 	@Override
 	protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcResponse rpcResponse) throws Exception {
 		String requestId = rpcResponse.getRequestId();
+		System.out.println("channelRead0, requestId:" + requestId);
 		NettyRpcResponse respFuture = requestMap.get(requestId);
 		respFuture.onSuccess(rpcResponse);
 	}
@@ -72,6 +72,7 @@ class NettyChannel extends SimpleChannelInboundHandler<RpcResponse> {
 	public RpcResponse send(RpcRequest request) throws ExecutionException, InterruptedException {
 		NettyRpcResponse respFuture = new NettyRpcResponse();
 		requestMap.put(request.getRequestId(), respFuture);
+		System.out.println("send requestId:" + request.getRequestId());
 
 		channel.writeAndFlush(request);
 		return respFuture.get();

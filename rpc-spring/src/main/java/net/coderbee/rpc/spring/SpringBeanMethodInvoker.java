@@ -24,6 +24,8 @@ public class SpringBeanMethodInvoker implements MethodInvoker,
 	@Override
 	public Object invoke(RpcRequest rpcRequest) throws Throwable {
 		String className = rpcRequest.getClassName();
+		System.out.println("server get request, requestId:" + rpcRequest.getRequestId());
+		System.out.println("className: " + className);
 
 		Object bean = handlerMap.get(className);
 		Method method = bean.getClass().getMethod(rpcRequest.getMethodName(), rpcRequest.getParameterTypes());

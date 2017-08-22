@@ -16,6 +16,7 @@ public class RpcServerStarter implements InitializingBean {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
+		System.out.println("to start rpc server .");
 		rpcServer.start();
 	}
 

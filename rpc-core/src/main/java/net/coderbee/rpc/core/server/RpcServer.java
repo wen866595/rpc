@@ -71,9 +71,11 @@ public class RpcServer {
 
 			ChannelFuture future = bootstrap.bind(serviceUrl.getHost(), serviceUrl.getPort()).sync();
 			LOGGER.debug("server started on port {}", serviceUrl.getPort());
+			System.out.println("server started on port " + serviceUrl.getPort());
 
 			if (registry != null) {
 				registry.register(serviceUrl);
+				System.out.println("registered serviceUrl:" + serviceUrl.toFullUrlString());
 			}
 
 			future.channel().closeFuture().sync();
@@ -82,6 +84,7 @@ public class RpcServer {
 			workGroup.shutdownGracefully();
 			bootGroup.shutdownGracefully();
 		}
+
 	}
 
 }

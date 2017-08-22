@@ -2,6 +2,7 @@ package net.coderbee.rpc.core.cluster.spi;
 
 import net.coderbee.rpc.core.*;
 import net.coderbee.rpc.core.cluster.Cluster;
+import net.coderbee.rpc.core.cluster.LoadBalance;
 import net.coderbee.rpc.core.extension.SpiMeta;
 
 import java.io.IOException;
@@ -14,9 +15,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @SpiMeta(name = "default")
 public class ClusterSpi<T> implements Cluster<T> {
-	private List<Refer<T>> refers;
-
 	private AtomicBoolean available = new AtomicBoolean(false);
+
+	private List<Refer<T>> refers;
+	private LoadBalance<T> loadBalance;
 
 	@Override
 	public Class getInterface() {
@@ -33,8 +35,8 @@ public class ClusterSpi<T> implements Cluster<T> {
 			throw new RpcException("no service available");
 		}
 
-		Refer<T> refer = refers.get(0);
-		return refer.invoke(request);
+		Refer<T> selectedRefer = loadBalance.select(request);
+		return selectedRefer.invoke(request);
 	}
 
 	@Override
@@ -53,9 +55,15 @@ public class ClusterSpi<T> implements Cluster<T> {
 			return;
 		}
 
+		// 更新负载均衡
+		loadBalance.onRefresh(refers);
+
 		List<Refer<T>> oldRefers = this.refers;
 		this.refers = refers;
 
+		if (oldRefers == null) {
+			return;
+		}
 		List<Refer<T>> delayDestroyRefers = new ArrayList<>();
 		for (Refer<T> refer : oldRefers) {
 			if (refers.contains(refer)) {
@@ -67,4 +75,11 @@ public class ClusterSpi<T> implements Cluster<T> {
 		Supports.delayDestroyRefers(delayDestroyRefers);
 	}
 
+	public LoadBalance<T> getLoadBalance() {
+		return loadBalance;
+	}
+
+	public void setLoadBalance(LoadBalance<T> loadBalance) {
+		this.loadBalance = loadBalance;
+	}
 }

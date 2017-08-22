@@ -1,6 +1,7 @@
 package net.coderbee.rpc.core.protocol;
 
 import net.coderbee.rpc.core.*;
+import net.coderbee.rpc.core.extension.SpiMeta;
 import net.coderbee.rpc.core.serialize.Serializer;
 import net.coderbee.rpc.core.transport.Client;
 import net.coderbee.rpc.core.transport.netty.NettyClient;
@@ -8,10 +9,10 @@ import net.coderbee.rpc.core.transport.netty.NettyClient;
 import java.io.IOException;
 
 /**
- * Created by coderbee on 2017/5/31.
+ * @author coderbee on 2017/8/19.
  */
-public class NettyHessianProtocol implements Protocol {
-
+@SpiMeta(name = "rpc")
+public class DefaultRpcProtocol implements Protocol {
 
 	@Override
 	public <T> Exporter<T> exporter(Caller invoker) {
@@ -20,7 +21,7 @@ public class NettyHessianProtocol implements Protocol {
 
 	@Override
 	public <T> Refer<T> refer(Class<T> clazz, URL url) {
-		return new NettyHessianRefer<T>(clazz, url);
+		return  new DefaultRpcRefer<>(clazz, url);
 	}
 
 	@Override
@@ -28,17 +29,28 @@ public class NettyHessianProtocol implements Protocol {
 
 	}
 
-	static class NettyHessianRefer<T> implements Refer<T> {
+	class DefaultRpcRefer<T> implements Refer<T> {
 		private Class<T> clazz;
 		private URL serviceUrl;
 		private Serializer serializer;
 		private Client client;
 
-		public NettyHessianRefer(Class<T> clazz, URL serviceUrl) {
+		public DefaultRpcRefer(Class<T> clazz, URL serviceUrl) {
 			this.clazz = clazz;
 			this.serviceUrl = serviceUrl;
 
 			client = new NettyClient(serviceUrl);
+			client.open();
+		}
+
+		@Override
+		public URL getUrl() {
+			return serviceUrl;
+		}
+
+		@Override
+		public void destroy() {
+			client.close();
 		}
 
 		@Override
@@ -50,16 +62,7 @@ public class NettyHessianProtocol implements Protocol {
 		public RpcResponse invoke(RpcRequest request) throws RpcException, IOException {
 			return client.request(request);
 		}
-
-		@Override
-		public URL getUrl() {
-			return null;
-		}
-
-		@Override
-		public void destroy() {
-
-		}
 	}
+
 
 }

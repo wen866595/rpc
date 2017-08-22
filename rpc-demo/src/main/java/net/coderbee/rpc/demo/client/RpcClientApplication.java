@@ -47,10 +47,10 @@ public class RpcClientApplication {
 
 			System.out.println("create proxy done .");
 			String result = helloService.hello("rpc demo");
-			System.out.println(result);
+			System.out.println("get result:" + result);
 
 			String result2 = helloService.hello("rpc again");
-			System.out.println(result2);
+			System.out.println("----" + result2);
 		};
 	}
 

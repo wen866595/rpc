@@ -22,6 +22,8 @@ public class RpcEncoder extends MessageToByteEncoder {
 			byte[] data = serializer.serialize(o);
 			buf.writeInt(data.length);
 			buf.writeBytes(data);
+			System.out.println("encode data done ");
 		}
+		System.out.println("encode done");
 	}
 }

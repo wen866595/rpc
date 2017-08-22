@@ -2,6 +2,7 @@ package net.coderbee.rpc.demo.server;
 
 import net.coderbee.rpc.core.MethodInvoker;
 import net.coderbee.rpc.core.URL;
+import net.coderbee.rpc.core.URLParamType;
 import net.coderbee.rpc.core.extension.ExtensionLoader;
 import net.coderbee.rpc.core.registry.Registry;
 import net.coderbee.rpc.core.registry.RegistryFactory;
@@ -25,10 +26,12 @@ public class RpcServerApplication {
 	public RpcServerStarter initRpcServer(MethodInvoker methodInvoker,
 	                                      Registry registry) {
 		URL url = new URL("rpc", "localhost", 9999, "net.coderbee.rpc.demo.HelloService");
-		url.setParameter("serializer", "hessian");
+		url.setParameter(URLParamType.serializer.getName(), "hessian");
+		url.setParameter(URLParamType.proxy.getName(), URLParamType.proxy.getValue());
 
 		RpcServer rpcServer = new RpcServer(methodInvoker, url, registry);
 
+		System.out.println("inited rpc server .");
 		return new RpcServerStarter(rpcServer);
 	}
 
