@@ -11,7 +11,9 @@ public enum URLParamType {
 	/**
 	 * 在 Registry 的 URl 中传递 Refer URL
 	 */
-	embed("embed", "embed");
+	embed("embed", "embed"),
+
+	nodeType("nodeType", "service");
 
 	private String name;
 	private String value;
