@@ -7,7 +7,8 @@ public enum URLParamType {
 	proxy("proxyType", "default"),
 	serializer("serializer", "hessian"),
 	endpointFactory("endpointFactory", "nettyHessian"),
-
+	version("version", "default"),
+	group("group", "default"),
 	/**
 	 * 在 Registry 的 URl 中传递 Refer URL
 	 */
