@@ -91,4 +91,3 @@ public class NettyServer implements EndPoint {
     public InetAddress getRemoteAddress() {
         return null;
     }
-}

@@ -1,13 +1,8 @@
 package net.coderbee.rpc.demo.client;
 
-import net.coderbee.rpc.core.URL;
-import net.coderbee.rpc.core.config.ConfigerHandler;
 import net.coderbee.rpc.core.config.ProtocolConfig;
 import net.coderbee.rpc.core.config.RefererConfig;
 import net.coderbee.rpc.core.config.RegistryConfig;
-import net.coderbee.rpc.core.extension.ExtensionLoader;
-import net.coderbee.rpc.core.registry.Registry;
-import net.coderbee.rpc.core.registry.RegistryFactory;
 import net.coderbee.rpc.demo.HelloService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -25,7 +20,7 @@ public class RpcClientApplication {
 	}
 
 	@Bean
-	public CommandLineRunner commandLineRunner(ConfigerHandler configerHandler, Registry registry) {
+	public CommandLineRunner commandLineRunner() {
 		return args -> {
 
 			System.out.println("start to run command line .");
@@ -51,18 +46,8 @@ public class RpcClientApplication {
 
 			String result2 = helloService.hello("rpc again");
 			System.out.println("----" + result2);
+
 		};
 	}
 
-	@Bean
-	public ConfigerHandler initConfigerHandler() {
-		return ExtensionLoader.getSpi(ConfigerHandler.class, "default");
-	}
-
-	@Bean
-	public Registry initServiceDiscovery() {
-		URL registryUrl = new URL("zookeeper", "127.0.0.1", 2181, "");
-		RegistryFactory registryFactory = ExtensionLoader.getSpi(RegistryFactory.class, registryUrl.getProtocol());
-		return registryFactory.getRegistry(registryUrl);
-	}
 }
