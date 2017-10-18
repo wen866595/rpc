@@ -193,4 +193,13 @@ public class URL {
 	public String getUri() {
 		return protocol + "://" + host + ":" + port + Constant.PATH_SEPARATOR + path;
 	}
+
+	public URL copy() {
+		Map<String, String> params = new HashMap<String, String>();
+		if (this.parameters != null) {
+			params.putAll(this.parameters);
+		}
+
+		return new URL(protocol, host, port, path, params);
+	}
 }

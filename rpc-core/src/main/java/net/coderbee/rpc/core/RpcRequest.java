@@ -11,6 +11,7 @@ public class RpcRequest implements Serializable {
 	private String requestId;
 	private String className;
 	private String methodName;
+	private String parameterDesc;
 	private Class<?>[] parameterTypes;
 	private Object[] parameters;
 
@@ -51,6 +52,13 @@ public class RpcRequest implements Serializable {
 	}
 
 	public void setParameters(Object[] parameters) {
-		this.parameters = parameters;
+	}
+
+	public String getParameterDesc() {
+		return parameterDesc;
+	}
+
+	public void setParameterDesc(String parameterDesc) {
+		this.parameterDesc = parameterDesc;
 	}
 }
