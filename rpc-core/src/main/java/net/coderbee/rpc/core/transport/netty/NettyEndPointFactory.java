@@ -1,23 +1,21 @@
 package net.coderbee.rpc.core.transport.netty;
 
-import net.coderbee.rpc.core.Caller;
-import net.coderbee.rpc.core.URL;
-import net.coderbee.rpc.core.transport.Client;
-import net.coderbee.rpc.core.transport.EndPointFactory;
-import net.coderbee.rpc.core.transport.Server;
-
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+
+import net.coderbee.rpc.core.URL;
+import net.coderbee.rpc.core.extension.SpiMeta;
+import net.coderbee.rpc.core.transport.Client;
+import net.coderbee.rpc.core.transport.EndPointFactory;
+import net.coderbee.rpc.core.transport.MessageHandler;
+import net.coderbee.rpc.core.transport.Server;
 
 /**
  * @author coderbee on 2017/6/11.
  */
+@SpiMeta(name = "nettyHessian")
 public class NettyEndPointFactory implements EndPointFactory {
 	private Map<String, Server> ipPort2server = new HashMap<>();
-	private ConcurrentMap<Server, Set<String>> server2urls = new ConcurrentHashMap<>();
 
 	@Override
 	public Client createClient(URL url) {
@@ -29,10 +27,10 @@ public class NettyEndPointFactory implements EndPointFactory {
 		client.close();
 	}
 
-	public Server createServer(URL serviceUrl, Caller caller) {
+	public Server createServer(URL serviceUrl, MessageHandler messageHandler) {
 		synchronized (ipPort2server) {
 			String hostPort = serviceUrl.getHostPortString();
-//			serviceUrl.getProtocol();
+			// serviceUrl.getProtocol();
 
 			Server server = ipPort2server.get(hostPort);
 			if (server != null) {
@@ -44,7 +42,7 @@ public class NettyEndPointFactory implements EndPointFactory {
 			URL copy = serviceUrl.copy();
 			copy.setPath("");
 
-			server = new NettyServer(serviceUrl, caller);
+			server = new NettyServer(copy, messageHandler);
 			ipPort2server.put(hostPort, server);
 
 			return server;

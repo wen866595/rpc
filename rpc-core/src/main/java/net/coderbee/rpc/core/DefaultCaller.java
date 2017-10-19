@@ -1,11 +1,11 @@
 package net.coderbee.rpc.core;
 
-import net.coderbee.util.ReflectUtil;
-
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+
+import net.coderbee.util.ReflectUtil;
 
 /**
  * @author coderbee on 2017/9/12.
@@ -41,7 +41,7 @@ public class DefaultCaller<T> implements Caller<T> {
 	public RpcResponse invoke(RpcRequest request) throws RpcException, IOException {
 		RpcResponse response = new RpcResponse();
 
-		String methodDesc = ReflectUtil.getMethodDesc(request.getMethodName(), request.getParameterDesc());
+		String methodDesc = ReflectUtil.getMethodDesc(request.getMethodName(), request.getParameterTypeDesc());
 		Method method = methodMap.get(methodDesc);
 		if (method == null) {
 			RpcException exception = new RpcException("Server method " + methodDesc + " not exists");

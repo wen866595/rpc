@@ -63,7 +63,7 @@ public class RpcServer {
 							socketChannel.pipeline()
 									.addLast(new RpcDecoder(serializer, RpcRequest.class))
 									.addLast(new RpcEncoder(serializer, RpcResponse.class))
-									.addLast(new RpcHandler(methodInvoker));
+									.addLast(new RpcHandler(null));
 						}
 					})
 					.option(ChannelOption.SO_BACKLOG, 128)

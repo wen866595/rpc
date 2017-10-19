@@ -1,5 +1,6 @@
 package net.coderbee.rpc.core;
 
+import net.coderbee.rpc.core.server.Provider;
 import net.coderbee.rpc.core.transport.EndPoint;
 
 /**
@@ -9,7 +10,7 @@ import net.coderbee.rpc.core.transport.EndPoint;
  */
 public interface Exporter<T> extends EndPoint {
 
-	Caller getInvoker();
+	Provider<T> getInvoker();
 
 	void unexport();
 

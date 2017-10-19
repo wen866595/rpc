@@ -1,6 +1,7 @@
 package net.coderbee.rpc.core;
 
 import net.coderbee.rpc.core.extension.Spi;
+import net.coderbee.rpc.core.server.Provider;
 
 /**
  * 调用协议定义
@@ -16,7 +17,7 @@ public interface Protocol {
 	 * @param invoker 方法调用器
 	 * @return 服务定义器
 	 */
-	<T> Exporter<T> exporter(Caller<T> invoker, URL serviceUrl);
+	<T> Exporter<T> exporter(Provider<T> provider, URL serviceUrl);
 
 	/**
 	 * 返回该协议的服务引用器

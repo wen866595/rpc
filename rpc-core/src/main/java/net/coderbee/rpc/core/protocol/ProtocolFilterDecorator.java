@@ -1,6 +1,11 @@
 package net.coderbee.rpc.core.protocol;
 
-import net.coderbee.rpc.core.*;
+import net.coderbee.rpc.core.Exporter;
+import net.coderbee.rpc.core.Protocol;
+import net.coderbee.rpc.core.Refer;
+import net.coderbee.rpc.core.RpcException;
+import net.coderbee.rpc.core.URL;
+import net.coderbee.rpc.core.server.Provider;
 
 /**
  * @author coderbee on 2017/7/23.
@@ -17,7 +22,7 @@ public class ProtocolFilterDecorator implements Protocol {
 	}
 
 	@Override
-	public <T> Exporter<T> exporter(Caller invoker) {
+	public <T> Exporter<T> exporter(Provider<T> invoker, URL serviceUrl) {
 		return null;
 	}
 

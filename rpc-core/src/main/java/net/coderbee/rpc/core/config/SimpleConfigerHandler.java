@@ -1,5 +1,7 @@
 package net.coderbee.rpc.core.config;
 
+import java.util.List;
+
 import net.coderbee.rpc.core.Exporter;
 import net.coderbee.rpc.core.Protocol;
 import net.coderbee.rpc.core.URL;
@@ -12,9 +14,7 @@ import net.coderbee.rpc.core.proxy.ProxyFactory;
 import net.coderbee.rpc.core.proxy.RefererInvocationHandler;
 import net.coderbee.rpc.core.registry.Registry;
 import net.coderbee.rpc.core.registry.RegistryFactory;
-import net.coderbee.rpc.core.DefaultCaller;
-
-import java.util.List;
+import net.coderbee.rpc.core.server.Provider;
 
 /**
  * @author coderbee on 2017/6/21.
@@ -41,11 +41,11 @@ public class SimpleConfigerHandler implements ConfigerHandler {
 
 		// 1. 导出服务
 		Protocol protocol = ExtensionLoader.getSpi(Protocol.class, serviceUrl.getProtocol());
-		DefaultCaller<T> caller = new DefaultCaller<>(interfaceClass, ref, serviceUrl);
-		Exporter<T> exporter = protocol.exporter(caller, serviceUrl);
+		Provider<T> provider = new Provider<T>(ref, serviceUrl, interfaceClass);
+		Exporter<T> exporter = protocol.exporter(provider, serviceUrl);
 
 		// 2. 把服务注册到注册中心
-		RegistryFactory registryFactory = ExtensionLoader.getSpi(RegistryFactory.class, serviceUrl.getProtocol());
+		RegistryFactory registryFactory = ExtensionLoader.getSpi(RegistryFactory.class, registryUrl.getProtocol());
 		Registry registry = registryFactory.getRegistry(registryUrl);
 		registry.register(serviceUrl);
 

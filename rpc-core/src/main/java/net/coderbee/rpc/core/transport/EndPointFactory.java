@@ -9,6 +9,8 @@ import net.coderbee.rpc.core.extension.Spi;
 @Spi
 public interface EndPointFactory {
 
+	Server createServer(URL serviceUrl, MessageHandler caller);
+
 	Client createClient(URL url);
 
 	void safeReleaseResources(Client client, URL url);

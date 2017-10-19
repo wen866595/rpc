@@ -2,9 +2,10 @@ package net.coderbee.rpc.core.server;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import net.coderbee.rpc.core.MethodInvoker;
 import net.coderbee.rpc.core.RpcRequest;
 import net.coderbee.rpc.core.RpcResponse;
+import net.coderbee.rpc.core.transport.MessageHandler;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,10 +17,10 @@ import org.slf4j.LoggerFactory;
 public class RpcHandler extends SimpleChannelInboundHandler<RpcRequest> {
 	private static final Logger logger = LoggerFactory.getLogger(RpcHandler.class);
 
-	private MethodInvoker methodInvoker;
+	private MessageHandler messageHandler;
 
-	public RpcHandler(MethodInvoker methodInvoker) {
-		this.methodInvoker = methodInvoker;
+	public RpcHandler(MessageHandler messageHandler) {
+		this.messageHandler = messageHandler;
 	}
 
 	@Override
@@ -38,10 +39,7 @@ public class RpcHandler extends SimpleChannelInboundHandler<RpcRequest> {
 	}
 
 	private Object handle(RpcRequest rpcRequest) throws Throwable {
-		String className = rpcRequest.getClassName();
-
-		Object result = methodInvoker.invoke(rpcRequest);
-
+		Object result = messageHandler.handle(null, rpcRequest);
 		return result;
 	}
 

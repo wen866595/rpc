@@ -154,6 +154,14 @@ public class URL {
 		this.parameters = parameters == null ? new HashMap<>() : parameters;
 	}
 
+	public String getParameter(URLParamType paramType) {
+		String s = parameters.get(paramType.getName());
+		if (s == null) {
+			s = paramType.getValue();
+		}
+		return s;
+	}
+
 	public String getParameter(String name) {
 		return parameters.get(name);
 	}
