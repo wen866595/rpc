@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.coderbee.rpc.core.Constant;
 import net.coderbee.rpc.core.Exporter;
 import net.coderbee.rpc.core.Protocol;
 import net.coderbee.rpc.core.Refer;
@@ -27,11 +28,23 @@ import net.coderbee.rpc.core.transport.netty.NettyClient;
  */
 @SpiMeta(name = "rpc")
 public class DefaultRpcProtocol implements Protocol {
+	private Map<String, Exporter<?>> protocolKey2exporter = new HashMap<String, Exporter<?>>();
 	private Map<String, ProviderMessageRouter> ipport2router = new HashMap<String, ProviderMessageRouter>();
 
 	@Override
 	public <T> Exporter<T> exporter(Provider<T> caller, URL serviceUrl) {
-		return new DefaultRpcExporter<>(caller, serviceUrl);
+		String protocolKey = serviceUrl.getProtocol() + Constant.PATH_SEPARATOR + serviceUrl.getHostPortString()
+				+ Constant.PATH_SEPARATOR + serviceUrl.getPath();
+		synchronized (protocolKey2exporter) {
+			Exporter<?> exporter = protocolKey2exporter.get(protocolKey);
+			if (exporter != null) {
+				throw new RpcException("服务已经在：" + protocolKey);
+			}
+
+			DefaultRpcExporter<T> rpcExporter = new DefaultRpcExporter<>(caller, serviceUrl);
+			rpcExporter.open();
+			return rpcExporter;
+		}
 	}
 
 	@Override

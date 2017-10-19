@@ -3,6 +3,7 @@ package net.coderbee.rpc.core.proxy;
 import net.coderbee.rpc.core.RpcRequest;
 import net.coderbee.rpc.core.RpcResponse;
 import net.coderbee.rpc.core.cluster.Cluster;
+import net.coderbee.util.ReflectUtil;
 import net.coderbee.util.SystemUtil;
 
 import java.lang.reflect.InvocationHandler;
@@ -13,7 +14,7 @@ import java.lang.reflect.Method;
  */
 public class RefererInvocationHandler<T> implements InvocationHandler {
 	private Class<T> type;
-	private Cluster cluster;
+	private Cluster<T> cluster;
 
 	public RefererInvocationHandler(Class<T> type, Cluster<T> cluster) {
 		this.type = type;
@@ -28,6 +29,7 @@ public class RefererInvocationHandler<T> implements InvocationHandler {
 		rpcRequest.setMethodName(method.getName());
 		rpcRequest.setParameters(args);
 		rpcRequest.setParameterTypes(method.getParameterTypes());
+		rpcRequest.setParameterTypeDesc(ReflectUtil.getMethodParamDesc(method));
 
 		RpcResponse rpcResponse = cluster.invoke(rpcRequest);
 

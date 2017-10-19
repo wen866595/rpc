@@ -51,7 +51,7 @@ public class ServiceConfig<T> extends AbstractConfig {
 		exported.set(true);
 	}
 
-	private void doExport(ProtocolConfig protocolConfig, Integer port, URL registryUrl) {
+	private void doExport(ProtocolConfig protocolConfig, int port, URL registryUrl) {
 		Map<String, String> param = new HashMap<>();
 		param.put(URLParamType.nodeType.getName(), URLParamType.nodeType.getValue());
 		// TODO collect config param
@@ -67,7 +67,6 @@ public class ServiceConfig<T> extends AbstractConfig {
 		ConfigerHandler configerHandler = ExtensionLoader.getSpi(ConfigerHandler.class, "default");
 		Exporter<T> exporter = configerHandler.export(interfaceClass, ref, registryUrl);
 		exporters.add(exporter);
-
 	}
 
 	private boolean isExists(URL serviceUrl) {

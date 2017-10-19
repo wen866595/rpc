@@ -22,7 +22,7 @@ import net.coderbee.rpc.core.server.Provider;
 @SpiMeta(name = "default")
 public class SimpleConfigerHandler implements ConfigerHandler {
 	@Override
-	public <T> ClusterSupport createClusterSupport(Class<T> interfaceClass, URL registryUrl) {
+	public <T> ClusterSupport<T> createClusterSupport(Class<T> interfaceClass, URL registryUrl) {
 		ClusterSupport<T> clusterSupport = new ClusterSupport<>(interfaceClass, registryUrl);
 		clusterSupport.init();
 		return clusterSupport;

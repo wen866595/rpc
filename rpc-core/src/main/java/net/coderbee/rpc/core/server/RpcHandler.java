@@ -30,7 +30,11 @@ public class RpcHandler extends SimpleChannelInboundHandler<RpcRequest> {
 		System.out.println("get requestId:" + rpcRequest.getRequestId());
 		try {
 			Object result = handle(rpcRequest);
-			rpcResponse.setResult(result);
+			if (result instanceof RpcResponse) {
+				rpcResponse = (RpcResponse) result;
+			} else {
+				rpcResponse.setResult(result);
+			}
 		} catch (Throwable e) {
 			rpcResponse.setError(e);
 			e.printStackTrace();

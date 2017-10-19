@@ -14,7 +14,7 @@ import java.util.List;
 @Spi
 public interface ConfigerHandler {
 
-	<T> ClusterSupport createClusterSupport(Class<T> interfaceClass, URL registryUrl);
+	<T> ClusterSupport<T> createClusterSupport(Class<T> interfaceClass, URL registryUrl);
 
 	<T> T refer(Class<T> interfaceClass, Cluster<T> cluster, String proxyType);
 

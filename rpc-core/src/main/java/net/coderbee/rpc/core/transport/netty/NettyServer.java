@@ -35,18 +35,27 @@ public class NettyServer implements Server, EndPoint {
 	private MessageHandler messageHandler;
 	private AtomicBoolean open = new AtomicBoolean(false);
 
+	private ChannelFuture future;
+
+	NioEventLoopGroup bootGroup;
+	NioEventLoopGroup workGroup;
+
 	public NettyServer(URL url, MessageHandler messageHandler) {
 		this.url = url;
 		this.messageHandler = messageHandler;
+
+		bootGroup = new NioEventLoopGroup();
+		workGroup = new NioEventLoopGroup();
 	}
 
 	@Override
 	public synchronized boolean open() {
 		if (open.get()) {
-			logger.warn(" is already open");
+			logger.warn("NettyServer is already open");
 			return true;
 		}
 
+		System.out.println("start NettyServer open .");
 		initBootstrap();
 
 		open.set(true);
@@ -55,43 +64,40 @@ public class NettyServer implements Server, EndPoint {
 	}
 
 	private void initBootstrap() {
-		NioEventLoopGroup bootGroup = new NioEventLoopGroup();
-		NioEventLoopGroup workGroup = new NioEventLoopGroup();
+		ServerBootstrap bootstrap = new ServerBootstrap();
+		bootstrap.group(bootGroup, workGroup).channel(NioServerSocketChannel.class)
+				.childHandler(new ChannelInitializer<SocketChannel>() {
+					@Override
+					protected void initChannel(SocketChannel socketChannel) throws Exception {
+						Serializer serializer = ExtensionLoader.getSpi(Serializer.class,
+								url.getParameter(URLParamType.serializer));
+
+						socketChannel.pipeline().addLast(new RpcDecoder(serializer, RpcRequest.class))
+								.addLast(new RpcEncoder(serializer, RpcResponse.class))
+								.addLast(new RpcHandler(messageHandler));
+					}
+				}).option(ChannelOption.SO_BACKLOG, 128).childOption(ChannelOption.SO_KEEPALIVE, true);
+
 		try {
-			ServerBootstrap bootstrap = new ServerBootstrap();
-			bootstrap.group(bootGroup, workGroup).channel(NioServerSocketChannel.class)
-					.childHandler(new ChannelInitializer<SocketChannel>() {
-						@Override
-						protected void initChannel(SocketChannel socketChannel) throws Exception {
-							Serializer serializer = ExtensionLoader.getSpi(Serializer.class,
-									url.getParameter(URLParamType.serializer));
+			future = bootstrap.bind(url.getHost(), url.getPort()).sync();
+			logger.debug("server started on port {}", url.getPort());
+			System.out.println("server started on port " + url.getPort());
 
-							socketChannel.pipeline().addLast(new RpcDecoder(serializer, RpcRequest.class))
-									.addLast(new RpcEncoder(serializer, RpcResponse.class))
-									.addLast(new RpcHandler(messageHandler));
-						}
-					}).option(ChannelOption.SO_BACKLOG, 128).childOption(ChannelOption.SO_KEEPALIVE, true);
-
-			try {
-				ChannelFuture future = bootstrap.bind(url.getHost(), url.getPort()).sync();
-				logger.debug("server started on port {}", url.getPort());
-				System.out.println("server started on port " + url.getPort());
-
-				future.channel().closeFuture().sync();
-
-			} catch (InterruptedException e) {
-				logger.error("", e);
-			}
-
-		} finally {
-			workGroup.shutdownGracefully();
-			bootGroup.shutdownGracefully();
+		} catch (InterruptedException e) {
+			logger.error("", e);
 		}
 	}
 
 	@Override
 	public void close() {
+		try {
+			future.channel().closeFuture().sync();
+		} catch (InterruptedException e) {
+			logger.error("", e);
+		}
 
+		workGroup.shutdownGracefully();
+		bootGroup.shutdownGracefully();
 	}
 
 	@Override

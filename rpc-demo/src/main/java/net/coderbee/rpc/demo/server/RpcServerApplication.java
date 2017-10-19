@@ -40,7 +40,7 @@ public class RpcServerApplication {
 
 		logger.info("rpc server started .");
 
-		Thread.sleep(1000 * 120 * 10);
+		Thread.sleep(1000 * 60 * 30);
 	}
 
 }
