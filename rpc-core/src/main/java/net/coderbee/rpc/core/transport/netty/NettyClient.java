@@ -22,7 +22,6 @@ public class NettyClient implements Client {
 
 	public NettyClient(URL serviceUrl) {
 		this.serviceUrl = serviceUrl;
-		System.out.println("new NettyClient");
 	}
 
 	@Override

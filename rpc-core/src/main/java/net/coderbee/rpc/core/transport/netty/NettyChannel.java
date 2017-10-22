@@ -50,21 +50,18 @@ class NettyChannel extends SimpleChannelInboundHandler<RpcResponse> {
 								.addLast(NettyChannel.this);
 					}
 				}).option(ChannelOption.SO_KEEPALIVE, true);
-		System.out.println("start netty channel open .");
 		try {
 			ChannelFuture future = bootstrap.connect(serviceUrl.getHost(), serviceUrl.getPort()).sync();
 			channel = future.channel();
 		} catch (InterruptedException e) {
 			logger.error("connect to " + serviceUrl.getHost() + ":" + serviceUrl.getPort() + " failed .", e);
 		}
-		System.out.println("netty channel open finished .");
 		return true;
 	}
 
 	@Override
 	protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcResponse rpcResponse) throws Exception {
 		String requestId = rpcResponse.getRequestId();
-		System.out.println("channelRead0, requestId:" + requestId);
 		NettyRpcResponse respFuture = requestMap.get(requestId);
 		respFuture.onSuccess(rpcResponse);
 	}
@@ -72,7 +69,6 @@ class NettyChannel extends SimpleChannelInboundHandler<RpcResponse> {
 	public RpcResponse send(RpcRequest request) throws ExecutionException, InterruptedException {
 		NettyRpcResponse respFuture = new NettyRpcResponse();
 		requestMap.put(request.getRequestId(), respFuture);
-		System.out.println("send requestId:" + request.getRequestId());
 
 		channel.writeAndFlush(request);
 		return respFuture.get();

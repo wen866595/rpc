@@ -4,38 +4,70 @@ import net.coderbee.rpc.core.config.ProtocolConfig;
 import net.coderbee.rpc.core.config.RefererConfig;
 import net.coderbee.rpc.core.config.RegistryConfig;
 import net.coderbee.rpc.demo.HelloService;
+import net.coderbee.rpc.demo.UserService;
 
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by coderbee on 2017/5/21.
  */
-@SpringBootApplication
 public class RpcClientApplication {
 
-	public static void main(String[] args) {
-		RefererConfig<HelloService> refererConfig = new RefererConfig<>();
-		refererConfig.setInterfaceClass(HelloService.class);
-
+	public static void main(String[] args) throws InterruptedException {
 		ProtocolConfig protocolConfig = new ProtocolConfig();
 		protocolConfig.setName("rpc");
-		refererConfig.setProtocolConfig(protocolConfig);
 
 		RegistryConfig registryConfig = new RegistryConfig();
 		registryConfig.setName("zookeeper");
 		registryConfig.setHost("127.0.0.1");
 		registryConfig.setPort(2181);
-		refererConfig.setRegistryConfig(registryConfig);
 
-		HelloService helloService = refererConfig.getRef();
+		RefererConfig<HelloService> helloRefererConfig = new RefererConfig<>();
+		helloRefererConfig.setInterfaceClass(HelloService.class);
+		helloRefererConfig.setProtocolConfig(protocolConfig);
+		helloRefererConfig.setRegistryConfig(registryConfig);
+		HelloService helloService = helloRefererConfig.getRef();
 
-		System.out.println("create proxy done .");
-		String result = helloService.hello("rpc demo");
-		System.out.println("get result:" + result);
+		RefererConfig<UserService> userRefererConfig = new RefererConfig<>();
+		userRefererConfig.setInterfaceClass(UserService.class);
+		userRefererConfig.setProtocolConfig(protocolConfig);
+		userRefererConfig.setRegistryConfig(registryConfig);
+		UserService userService = userRefererConfig.getRef();
 
-		String result2 = helloService.hello("rpc again");
-		System.out.println("----" + result2);
+		userService.getNameById("xcode");
 
+		helloService.hello("xcode");
+
+		ExecutorService pool = Executors.newFixedThreadPool(12);
+
+		int cnt = 1_000_00;
+		CountDownLatch latch = new CountDownLatch(cnt);
+
+		long start = System.currentTimeMillis();
+		for (int i = 0; i < cnt; i++) {
+			pool.submit(() -> {
+				String result = helloService.hello("rpc demo");
+				System.out.println("get result:" + result);
+
+//				String result2 = helloService.hello("rpc again");
+//				System.out.println("----" + result2);
+//
+//				String coderbee = userService.getNameById("coderbee");
+//				System.out.println(coderbee);
+//
+//				String xcode = userService.getNameById("xcode");
+//				System.out.println(xcode);
+
+				latch.countDown();
+			});
+		}
+
+		latch.await();
+		long end = System.currentTimeMillis();
+		System.out.println("used time millis:" + (end - start));
+		pool.shutdown();
 	}
 
 }

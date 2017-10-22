@@ -7,15 +7,13 @@ import net.coderbee.rpc.core.extension.ExtensionLoader;
 import net.coderbee.rpc.core.registry.Registry;
 import net.coderbee.rpc.core.registry.RegistryFactory;
 import net.coderbee.rpc.demo.HelloService;
-
+import net.coderbee.rpc.demo.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * Created by coderbee on 2017/5/21.
  */
-@SpringBootApplication
 public class RpcServerApplication {
 	private static Logger logger = LoggerFactory.getLogger(RpcServerApplication.class);
 
@@ -24,19 +22,30 @@ public class RpcServerApplication {
 		RegistryFactory registryFactory = ExtensionLoader.getSpi(RegistryFactory.class, registryUrl.getProtocol());
 		Registry registry = registryFactory.getRegistry(registryUrl);
 
-		ServiceConfig<HelloService> serviceConfig = new ServiceConfig<>();
+		ServiceConfig<HelloService> helloServiceConfig = new ServiceConfig<>();
 		HelloService helloService = new HelloServiceImpl();
-		serviceConfig.setInterfaceClass(HelloService.class);
-		serviceConfig.setRef(helloService);
+		helloServiceConfig.setInterfaceClass(HelloService.class);
+		helloServiceConfig.setRef(helloService);
 
-		serviceConfig.setRegistry(registry);
+		helloServiceConfig.setRegistry(registry);
 
 		ProtocolConfig protocolConfig = new ProtocolConfig();
 		protocolConfig.setName("rpc");
-		serviceConfig.setProtocolConfig(protocolConfig);
+		helloServiceConfig.setProtocolConfig(protocolConfig);
 
-		serviceConfig.setExport("rpc:9999");
-		serviceConfig.export();
+		helloServiceConfig.setExport("rpc:9999");
+		helloServiceConfig.export();
+
+		ServiceConfig<UserService> userServiceConfig = new ServiceConfig<>();
+		UserService userService = new UserServiceImpl();
+		userServiceConfig.setInterfaceClass(UserService.class);
+		userServiceConfig.setRef(userService);
+
+		userServiceConfig.setRegistry(registry);
+		userServiceConfig.setProtocolConfig(protocolConfig);
+
+		userServiceConfig.setExport("rpc:9999");
+		userServiceConfig.export();
 
 		logger.info("rpc server started .");
 
