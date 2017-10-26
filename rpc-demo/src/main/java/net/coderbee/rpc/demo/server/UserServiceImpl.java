@@ -9,7 +9,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public String getNameById(String userId) {
-		return "name for " + userId;
+		return userId;
 	}
 
 }
