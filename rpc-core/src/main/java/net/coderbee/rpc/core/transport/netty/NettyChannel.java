@@ -62,8 +62,12 @@ class NettyChannel extends SimpleChannelInboundHandler<RpcResponse> {
 	@Override
 	protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcResponse rpcResponse) throws Exception {
 		String requestId = rpcResponse.getRequestId();
-		NettyRpcResponse respFuture = requestMap.get(requestId);
-		respFuture.onSuccess(rpcResponse);
+		NettyRpcResponse respFuture = requestMap.remove(requestId);
+		if (respFuture != null) {
+			respFuture.onSuccess(rpcResponse);
+		} else {
+			logger.info("requestId " + requestId + " has been removed");
+		}
 	}
 
 	public RpcResponse send(RpcRequest request) throws ExecutionException, InterruptedException {
