@@ -27,7 +27,7 @@ public class RpcHandler extends SimpleChannelInboundHandler<RpcRequest> {
 	protected void channelRead0(ChannelHandlerContext ctx, RpcRequest rpcRequest) throws Exception {
 		RpcResponse rpcResponse = new RpcResponse();
 		rpcResponse.setRequestId(rpcRequest.getRequestId());
-		System.out.println("get requestId:" + rpcRequest.getRequestId());
+		logger.debug("get requestId:{}", rpcRequest.getRequestId());
 		try {
 			Object result = handle(rpcRequest);
 			if (result instanceof RpcResponse) {
