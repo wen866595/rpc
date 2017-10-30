@@ -4,7 +4,7 @@ import net.coderbee.rpc.core.RpcException;
 import net.coderbee.rpc.core.URL;
 import net.coderbee.rpc.core.extension.SpiMeta;
 import net.coderbee.rpc.core.registry.Registry;
-import net.coderbee.rpc.core.registry.RegistryFactory;
+import net.coderbee.rpc.core.registry.support.AbstractRegistryFactory;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
@@ -15,11 +15,13 @@ import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
 @SpiMeta(name = "zookeeper")
-public class ZooKeeperRegistryFactory implements RegistryFactory {
+public class ZooKeeperRegistryFactory extends AbstractRegistryFactory {
 	private static Logger logger = LoggerFactory.getLogger(ZooKeeperRegistryFactory.class);
 
 	@Override
-	public Registry getRegistry(URL url) {
+	protected Registry createRegistry(URL url) {
+		logger.info("createRegistry for:" + url.toFullUrlString());
+
 		CountDownLatch latch = new CountDownLatch(1);
 
 		try {

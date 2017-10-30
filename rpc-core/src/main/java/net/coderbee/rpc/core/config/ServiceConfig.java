@@ -6,7 +6,6 @@ import net.coderbee.rpc.core.RpcException;
 import net.coderbee.rpc.core.URL;
 import net.coderbee.rpc.core.URLParamType;
 import net.coderbee.rpc.core.extension.ExtensionLoader;
-import net.coderbee.rpc.core.registry.Registry;
 import net.coderbee.util.NetUtil;
 
 import java.util.HashMap;
@@ -24,7 +23,7 @@ public class ServiceConfig<T> extends AbstractConfig {
 	private Class<T> interfaceClass;
 	private T ref;
 
-	private Registry registry;
+	private URL registryUrl;
 
 	private ProtocolConfig protocolConfig;
 
@@ -39,8 +38,6 @@ public class ServiceConfig<T> extends AbstractConfig {
 			logger.info("repeat export, ignored .");
 			return;
 		}
-
-		URL registryUrl = registry.getUrl();
 
 		Map<String, Integer> protocolPort = getProtocolPort();
 		for (Map.Entry<String, Integer> entry : protocolPort.entrySet()) {
@@ -105,12 +102,12 @@ public class ServiceConfig<T> extends AbstractConfig {
 		this.ref = ref;
 	}
 
-	public Registry getRegistry() {
-		return registry;
+	public URL getRegistryUrl() {
+		return registryUrl;
 	}
 
-	public void setRegistry(Registry registry) {
-		this.registry = registry;
+	public void setRegistryUrl(URL registryUrl) {
+		this.registryUrl = registryUrl;
 	}
 
 	public ProtocolConfig getProtocolConfig() {
