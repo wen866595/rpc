@@ -1,14 +1,19 @@
 package net.coderbee.rpc.core.transport;
 
+import net.coderbee.rpc.core.RpcException;
+import net.coderbee.rpc.core.RpcRequest;
+import net.coderbee.rpc.core.RpcResponse;
 import net.coderbee.rpc.core.URL;
 
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 public interface Channel {
 
-    InetSocketAddress getLocalAddress();
+	SocketAddress getLocalAddress();
 
-    InetSocketAddress getRemoteAddress();
+	SocketAddress getRemoteAddress();
+
+    RpcResponse send(RpcRequest request) throws RpcException;
 
     boolean open();
 

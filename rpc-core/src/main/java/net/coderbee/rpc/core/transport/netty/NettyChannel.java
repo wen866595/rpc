@@ -1,57 +1,36 @@
 package net.coderbee.rpc.core.transport.netty;
 
-import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.*;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
-import net.coderbee.rpc.core.RpcRequest;
-import net.coderbee.rpc.core.RpcResponse;
-import net.coderbee.rpc.core.URL;
-import net.coderbee.rpc.core.codec.RpcDecoder;
-import net.coderbee.rpc.core.codec.RpcEncoder;
-import net.coderbee.rpc.core.extension.ExtensionLoader;
-import net.coderbee.rpc.core.serialize.Serializer;
+import io.netty.channel.ChannelFuture;
+import net.coderbee.rpc.core.*;
+import net.coderbee.rpc.core.transport.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutionException;
+import java.net.SocketAddress;
 
 /**
  * 利用 Netty 进行网络传输的通道。
  *
  * @author coderbee on 2017/6/6.
  */
-class NettyChannel extends SimpleChannelInboundHandler<RpcResponse> {
+class NettyChannel implements Channel {
 	private static Logger logger = LoggerFactory.getLogger(NettyChannel.class);
 
-	private Serializer serializer;
-	private URL serviceUrl;
-	private ConcurrentMap<String, NettyRpcResponse> requestMap = new ConcurrentHashMap<>();
-	private Channel channel;
+	private volatile ChannelState state = ChannelState.UNINIT;
 
-	public NettyChannel(URL serviceUrl) {
-		this.serviceUrl = serviceUrl;
-		serializer = ExtensionLoader.getSpi(Serializer.class, "hessian");
-		System.out.println("new NettyChannel, serviceUrl: " + serviceUrl);
+	private NettyClient nettyClient;
+	private URL serviceUrl;
+	private io.netty.channel.Channel channel;
+
+	public NettyChannel(NettyClient nettyClient) {
+		this.nettyClient = nettyClient;
+		this.serviceUrl = nettyClient.getUrl();
+		System.out.println("new NettyChannel, serviceUrl: " + nettyClient.getUrl());
 	}
 
 	public boolean open() {
-		NioEventLoopGroup group = new NioEventLoopGroup();
-		Bootstrap bootstrap = new Bootstrap().group(group).channel(NioSocketChannel.class)
-				.handler(new ChannelInitializer<SocketChannel>() {
-					@Override
-					protected void initChannel(SocketChannel socketChannel) throws Exception {
-						socketChannel.pipeline()
-								.addLast(new RpcEncoder(serializer, RpcRequest.class))
-								.addLast(new RpcDecoder(serializer, RpcResponse.class))
-								.addLast(NettyChannel.this);
-					}
-				}).option(ChannelOption.SO_KEEPALIVE, true);
 		try {
-			ChannelFuture future = bootstrap.connect(serviceUrl.getHost(), serviceUrl.getPort()).sync();
+			ChannelFuture future = nettyClient.getBootstrap().connect(serviceUrl.getHost(), serviceUrl.getPort()).sync();
 			channel = future.channel();
 		} catch (InterruptedException e) {
 			logger.error("connect to " + serviceUrl.getHost() + ":" + serviceUrl.getPort() + " failed .", e);
@@ -60,29 +39,65 @@ class NettyChannel extends SimpleChannelInboundHandler<RpcResponse> {
 	}
 
 	@Override
-	protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcResponse rpcResponse) throws Exception {
-		String requestId = rpcResponse.getRequestId();
-		NettyRpcResponse respFuture = requestMap.remove(requestId);
-		if (respFuture != null) {
-			respFuture.onSuccess(rpcResponse);
-		} else {
-			logger.info("requestId " + requestId + " has been removed");
-		}
+	public SocketAddress getLocalAddress() {
+		return channel.localAddress();
 	}
 
-	public RpcResponse send(RpcRequest request) throws ExecutionException, InterruptedException {
-		NettyRpcResponse respFuture = new NettyRpcResponse();
-		requestMap.put(request.getRequestId(), respFuture);
+	@Override
+	public SocketAddress getRemoteAddress() {
+		return nettyClient.getRemoteAddress();
+	}
 
-		channel.writeAndFlush(request);
-		return respFuture.get();
+	@Override
+	public RpcResponse send(RpcRequest request) throws RpcException {
+		NettyRpcResponse nettyRpcResponse = new NettyRpcResponse();
+
+		nettyClient.register(request.getRequestId(), nettyRpcResponse);
+
+		ChannelFuture future = channel.writeAndFlush(request);
+
+		return nettyRpcResponse;
+		// 写超时。写是同步的，异步等待响应。
+//		boolean result = future.awaitUninterruptibly(200, TimeUnit.MILLISECONDS);
+//		if (result && future.isSuccess()) {
+////		if (future.isSuccess()) {
+//			return nettyRpcResponse;
+//		}
+//
+//		nettyClient.removeCallback(request.getRequestId());
+//
+//		throw new RpcException("write request timeout or failed .");
 	}
 
 	public void close() {
-		try {
-			channel.closeFuture().sync();
-		} catch (InterruptedException e) {
-			logger.error("", e);
+		close(0);
+	}
+
+	@Override
+	public void close(int timeout) {
+		state = ChannelState.CLOSE;
+
+		if (channel != null) {
+			try {
+				channel.closeFuture().await(timeout);
+			} catch (InterruptedException e) {
+				logger.error("", e);
+			}
 		}
+	}
+
+	@Override
+	public boolean isClosed() {
+		return state.isCloseState();
+	}
+
+	@Override
+	public boolean isAvailable() {
+		return state.isAliveState();
+	}
+
+	@Override
+	public URL getUrl() {
+		return serviceUrl;
 	}
 }

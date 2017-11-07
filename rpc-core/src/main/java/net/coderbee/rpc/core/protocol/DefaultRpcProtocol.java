@@ -1,19 +1,6 @@
 package net.coderbee.rpc.core.protocol;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.util.HashMap;
-import java.util.Map;
-
-import net.coderbee.rpc.core.Constant;
-import net.coderbee.rpc.core.Exporter;
-import net.coderbee.rpc.core.Protocol;
-import net.coderbee.rpc.core.Refer;
-import net.coderbee.rpc.core.RpcException;
-import net.coderbee.rpc.core.RpcRequest;
-import net.coderbee.rpc.core.RpcResponse;
-import net.coderbee.rpc.core.URL;
-import net.coderbee.rpc.core.URLParamType;
+import net.coderbee.rpc.core.*;
 import net.coderbee.rpc.core.extension.ExtensionLoader;
 import net.coderbee.rpc.core.extension.SpiMeta;
 import net.coderbee.rpc.core.server.Provider;
@@ -22,6 +9,11 @@ import net.coderbee.rpc.core.transport.EndPointFactory;
 import net.coderbee.rpc.core.transport.ProviderMessageRouter;
 import net.coderbee.rpc.core.transport.Server;
 import net.coderbee.rpc.core.transport.netty.NettyClient;
+
+import java.io.IOException;
+import java.net.SocketAddress;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author coderbee on 2017/8/19.
@@ -136,13 +128,38 @@ public class DefaultRpcProtocol implements Protocol {
 		}
 
 		@Override
-		public InetAddress getLoaclAddress() {
-			return server.getLoaclAddress();
+		public void close(int timeout) {
+
 		}
 
 		@Override
-		public InetAddress getRemoteAddress() {
+		public boolean isClosed() {
+			return false;
+		}
+
+		@Override
+		public boolean isAvailable() {
+			return false;
+		}
+
+		@Override
+		public URL getUrl() {
+			return null;
+		}
+
+		@Override
+		public SocketAddress getLocalAddress() {
+			return server.getLocalAddress();
+		}
+
+		@Override
+		public SocketAddress getRemoteAddress() {
 			return server.getRemoteAddress();
+		}
+
+		@Override
+		public RpcResponse send(RpcRequest request) throws RpcException {
+			return null;
 		}
 
 		@Override

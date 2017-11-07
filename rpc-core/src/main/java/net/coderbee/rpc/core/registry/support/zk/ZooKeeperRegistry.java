@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
  * @author coderbee on 2017/6/26.
  */
 public class ZooKeeperRegistry extends AbstractRegistry {
+//	private Con
 	private ReentrantLock serverLock = new ReentrantLock();
 
 	private URL registryUrl;
@@ -33,6 +34,7 @@ public class ZooKeeperRegistry extends AbstractRegistry {
 	protected void doRegister(URL url) {
 		serverLock.lock();
 		try {
+			removeNode(url, ZkNodeType.server);
 			createNode(url, ZkNodeType.server);
 		} finally {
 			serverLock.unlock();
@@ -42,7 +44,7 @@ public class ZooKeeperRegistry extends AbstractRegistry {
 	@Override
 	protected void doUnregister(URL url) {
 		String servicePath = ZkUtils.toNodePath(url, ZkNodeType.server);
-		System.out.println("doUnregister servicePath:" + servicePath);
+		logger.debug("doUnregister servicePath:{}", servicePath);
 		serverLock.lock();
 		try {
 			Stat stat = zooKeeper.exists(servicePath, false);
@@ -62,7 +64,7 @@ public class ZooKeeperRegistry extends AbstractRegistry {
 		createNode(url, ZkNodeType.client);
 
 		String servicePath = ZkUtils.toNodeTypePath(url, ZkNodeType.server);
-		System.out.println("subscribe " + servicePath);
+		logger.debug("subscribe :{}", servicePath);
 		serverLock.lock();
 		try {
 			List<String> children = zooKeeper.getChildren(servicePath, (WatchedEvent event) -> {
@@ -77,7 +79,7 @@ public class ZooKeeperRegistry extends AbstractRegistry {
 						String[] split = string.split(":", 2);
 						URL serviceUrl = new URL(url.getProtocol(), split[0], Integer.parseInt(split[1]), url.getPath());
 						serviceUrl.setParameter(URLParamType.proxy.name(), "default");
-						System.out.println("zk get service url:" + serviceUrl.toFullUrlString());
+						logger.info("zk get service url:{}", serviceUrl.toFullUrlString());
 						return serviceUrl;
 					})
 					.collect(Collectors.toList());
@@ -98,7 +100,7 @@ public class ZooKeeperRegistry extends AbstractRegistry {
 	@Override
 	public List<URL> discover(URL url) {
 		String nodePath = ZkUtils.toNodeTypePath(url, ZkNodeType.server);
-		System.out.println("discover nodePath:" + nodePath);
+		logger.debug("discover nodePath:{}", nodePath);
 
 		serverLock.lock();
 		try {
@@ -152,7 +154,7 @@ public class ZooKeeperRegistry extends AbstractRegistry {
 			}
 
 			String nodePath = ZkUtils.toNodePath(url, nodeType);
-			System.out.println("create nodePath:" + nodePath);
+			logger.debug("create nodePath:{}", nodePath);
 			zooKeeper.create(nodePath, url.toFullUrlString().getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE,
 					CreateMode.EPHEMERAL);
 

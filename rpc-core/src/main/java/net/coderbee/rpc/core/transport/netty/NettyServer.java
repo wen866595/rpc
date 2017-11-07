@@ -7,11 +7,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import net.coderbee.rpc.core.RpcException;
-import net.coderbee.rpc.core.RpcRequest;
-import net.coderbee.rpc.core.RpcResponse;
-import net.coderbee.rpc.core.URL;
-import net.coderbee.rpc.core.URLParamType;
+import net.coderbee.rpc.core.*;
 import net.coderbee.rpc.core.codec.RpcDecoder;
 import net.coderbee.rpc.core.codec.RpcEncoder;
 import net.coderbee.rpc.core.extension.ExtensionLoader;
@@ -20,12 +16,11 @@ import net.coderbee.rpc.core.server.RpcHandler;
 import net.coderbee.rpc.core.transport.EndPoint;
 import net.coderbee.rpc.core.transport.MessageHandler;
 import net.coderbee.rpc.core.transport.Server;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.InetAddress;
+import java.net.SocketAddress;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class NettyServer implements Server, EndPoint {
@@ -80,8 +75,7 @@ public class NettyServer implements Server, EndPoint {
 
 		try {
 			future = bootstrap.bind(url.getHost(), url.getPort()).sync();
-			logger.debug("server started on port {}", url.getPort());
-			System.out.println("server started on port " + url.getPort());
+			logger.info("server started on port {}", url.getPort());
 
 		} catch (InterruptedException e) {
 			logger.error("", e);
@@ -90,6 +84,11 @@ public class NettyServer implements Server, EndPoint {
 
 	@Override
 	public void close() {
+		close(0);
+	}
+
+	@Override
+	public void close(int timeout) {
 		try {
 			future.channel().closeFuture().sync();
 		} catch (InterruptedException e) {
@@ -101,12 +100,32 @@ public class NettyServer implements Server, EndPoint {
 	}
 
 	@Override
-	public InetAddress getLoaclAddress() {
+	public boolean isClosed() {
+		return false;
+	}
+
+	@Override
+	public boolean isAvailable() {
+		return false;
+	}
+
+	@Override
+	public URL getUrl() {
 		return null;
 	}
 
 	@Override
-	public InetAddress getRemoteAddress() {
+	public SocketAddress getLocalAddress() {
+		return null;
+	}
+
+	@Override
+	public SocketAddress getRemoteAddress() {
+		return null;
+	}
+
+	@Override
+	public RpcResponse send(RpcRequest request) throws RpcException {
 		return null;
 	}
 

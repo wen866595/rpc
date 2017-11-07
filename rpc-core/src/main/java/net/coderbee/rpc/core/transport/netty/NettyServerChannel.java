@@ -76,4 +76,10 @@ public class NettyServerChannel extends SimpleChannelInboundHandler<RpcRequest> 
 		}
 	}
 
+	@Override
+	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+		logger.error("NettyChannelHandler exceptionCaught: remote=" + ctx.channel()
+				 + " event=" + cause.getCause(), cause.getCause());
+		ctx.channel().close();
+	}
 }
